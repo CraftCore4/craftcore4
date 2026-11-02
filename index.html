@@ -86,11 +86,11 @@
   .sell-ico { width:2.7rem; height:2.7rem; border-radius:.7rem; display:flex; align-items:center; justify-content:center; background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); }
   .sell-ico img { width:1.9rem; height:1.9rem; image-rendering:pixelated; }
   .sell-txt { padding:.2rem .65rem; border-radius:999px; font-size:.8rem; color:#fde68a; background:rgba(245,158,11,.14); border:1px solid rgba(245,158,11,.3); }
-  /* ===== Zonen-Schalter: seitlich links, Text von oben nach unten ===== */
-  #app #zones-toggle { left:.75rem !important; top:50% !important; bottom:auto !important; transform:translateY(-50%) rotate(180deg);
-    writing-mode:vertical-rl; flex-direction:row; padding:1rem .55rem; gap:.6rem; white-space:nowrap; }
-  #app #zones-toggle i { writing-mode:horizontal-tb; transform:rotate(180deg); }
-  #app #info-card { left:3.75rem !important; width:20rem; max-width:calc(100% - 4.5rem) !important; }
+  /* ===== Zonen-Schalter: oben in der Kopfzeile, mittig ===== */
+  #app > header { position:relative; }
+  #app #zones-toggle { padding:.4rem .9rem; white-space:nowrap; }
+  @media (min-width: 768px) { body:not(.is-admin) #app #zones-toggle { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); } }
+  #app #info-card { left:1rem; }
   #app #map-container { touch-action:none; }
   #app #app-header-btns { scrollbar-width:none; }
   #app #app-header-btns::-webkit-scrollbar { display:none; }
@@ -104,8 +104,7 @@
     #app #app-header-btns > * span { display:none; }
     #app #app-header-btns > * { padding:.5rem .65rem; }
     #app #app-header-btns > a span { display:inline; }
-    #app #info-card { left:3.25rem !important; right:.5rem; width:auto; top:auto !important; bottom:.5rem; max-width:none !important; max-height:60% !important; }
-    #app #zones-toggle { left:.5rem !important; }
+    #app #info-card { left:.5rem !important; right:.5rem; width:auto; top:auto !important; bottom:.5rem; max-width:none !important; max-height:60% !important; }
     #app > header { padding-left:.75rem; padding-right:.75rem; }
     #app .absolute.bottom-4.right-4 { bottom:.5rem; right:.5rem; }
     #shop-page .flex { min-width:0; }
@@ -247,6 +246,7 @@
 
     <header class="h-14 bg-stone-900 border-b border-stone-800 flex items-center justify-between px-4 z-20 shrink-0">
         <div class="flex items-center gap-3"><img id="logo-tool" alt="CraftCore 4" class="h-9 w-auto"><span class="hidden sm:inline text-xs font-bold uppercase tracking-widest text-stone-400 border-l border-stone-700 pl-3">Weltkarte</span></div>
+        <button id="zones-toggle" type="button" aria-pressed="false" title="Zonen ein-/ausblenden" class="z-20 flex shrink-0 items-center gap-2 rounded-full bg-black border border-amber-500/40 text-white text-sm font-semibold shadow-xl hover:border-amber-400 transition cursor-pointer"><i class="fa-solid fa-eye text-amber-400"></i><span>Zonen</span></button>
         <div id="app-header-btns" class="flex items-center gap-2 overflow-x-auto min-w-0">
             <button id="btn-admin-login" class="viewer-only flex items-center gap-2 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-lg border border-stone-700 transition"><i class="fa-solid fa-lock text-stone-400"></i><span>Admin</span></button>
             <button id="btn-admin-logout" class="admin-only flex items-center gap-2 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-lg border border-stone-700 transition"><i class="fa-solid fa-lock-open text-emerald-400"></i><span>Abmelden</span></button>
@@ -271,7 +271,6 @@
 
             <div class="map-vignette"></div>
             <div id="poi-layer" style="position:absolute;inset:0;z-index:6;pointer-events:none"></div>
-            <button id="zones-toggle" type="button" aria-pressed="false" title="Zonen ein-/ausblenden" class="absolute z-20 flex items-center gap-2 rounded-full bg-black border border-amber-500/40 text-white text-sm font-semibold shadow-xl hover:border-amber-400 transition cursor-pointer"><i class="fa-solid fa-eye text-amber-400"></i><span>Zonen</span></button>
             <div id="info-card" class="absolute left-4 top-4 z-10 w-80 max-w-[calc(100%-2rem)] max-h-[calc(100%-2rem)] bg-stone-900/95 backdrop-blur border border-amber-500/40 rounded-2xl shadow-2xl overflow-hidden flex-col cursor-default" style="display:none">
                 <div id="info-accent" class="h-1.5 shrink-0"></div>
                 <div class="flex items-start justify-between gap-2 p-4 pb-2 shrink-0">

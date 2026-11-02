@@ -110,6 +110,13 @@
     #shop-page .flex { min-width:0; }
     section[id] { scroll-margin-top: 72px; }
   }
+  /* ===== Events ===== */
+  .ev-date { flex:none; width:3.6rem; padding:.4rem 0 .45rem; border-radius:.85rem; text-align:center; color:#1c1b19; background:linear-gradient(145deg,#fcd34d,#f59e0b); box-shadow:0 6px 18px rgba(245,158,11,.25); line-height:1; }
+  .ev-date b { display:block; font-size:1.55rem; font-weight:800; }
+  .ev-date span { display:block; font-size:.65rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin-top:.2rem; }
+  .ev-chip { display:inline-flex; align-items:center; gap:.4rem; padding:.25rem .7rem; border-radius:999px; font-size:.78rem; font-weight:600; color:#fde68a; background:rgba(245,158,11,.14); border:1px solid rgba(245,158,11,.3); }
+  .ev-soon { color:#1c1b19; background:#fbbf24; border-color:#fbbf24; font-weight:800; }
+  #events-page { background-color:#1c1b19; background-image: radial-gradient(70% 380px at 50% 0%, rgba(245,158,11,.20), transparent 70%); }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -126,6 +133,7 @@
         <a data-nav="gebiete" href="#gebiete" class="nav-link">Gebiete</a>
         <a data-nav="kartenvorschau" href="#kartenvorschau" class="nav-link">Karte</a>
         <a data-nav="shop-teaser" href="#shop-teaser" class="nav-link">Shops</a>
+        <a data-nav="event-teaser" href="#event-teaser" class="nav-link">Events</a>
         <a data-nav="bestenlisten" href="#bestenlisten" class="nav-link">Bestenlisten</a>
         <a data-nav="live" href="#live" class="nav-link">Live</a>
         <a data-nav="abstimmung" href="#abstimmung" class="nav-link">Abstimmung</a>
@@ -184,6 +192,17 @@
     <a href="#shops" class="text-amber-400 hover:text-amber-300 font-semibold text-sm">Alle Shops ansehen →</a>
   </div>
   <div id="shop-teaser-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+</section>
+
+<section id="event-teaser" class="max-w-6xl mx-auto px-4 pb-24">
+  <div class="flex flex-wrap items-end justify-between gap-3 mb-8">
+    <div>
+      <h2 class="text-3xl md:text-4xl font-extrabold sec-title"><span class="sec-ico"><i class="fa-solid fa-calendar-days"></i></span>Events</h2>
+      <p class="text-white/60 mt-2">Was bei CraftCore 4 als Nächstes ansteht.</p>
+    </div>
+    <a href="#events" class="text-amber-400 hover:text-amber-300 font-semibold text-sm">Alle Events ansehen →</a>
+  </div>
+  <div id="event-teaser-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 </section>
 
 <section id="bestenlisten" class="max-w-6xl mx-auto px-4 pb-24">
@@ -455,6 +474,34 @@
       <button id="shop-add" class="admin-only px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold">+ Shop hinzufügen</button>
     </div>
     <div id="shop-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </main>
+</div>
+<div id="events-page" class="fixed inset-0 z-50 bg-[#1c1b19] text-white overflow-y-auto flex-col" style="display:none">
+  <header class="sticky top-0 z-10 backdrop-blur bg-[#1c1b19]/90 border-b border-white/10">
+    <div class="flex items-center justify-between px-4 md:px-8 h-16">
+      <a href="#" class="flex items-center gap-3"><img id="logo-events" alt="CraftCore 4" class="h-11 w-auto"><span class="hidden sm:inline text-xs font-bold uppercase tracking-widest text-white/50 border-l border-white/20 pl-3">Events</span></a>
+      <nav class="flex items-center gap-4 text-sm font-semibold text-white/70">
+        <a href="#" class="hover:text-white">Startseite</a>
+        <a href="#app" class="px-4 py-2 rounded-full bg-amber-500 hover:bg-amber-400 text-black transition">Zur Karte</a>
+      </nav>
+    </div>
+  </header>
+  <main class="max-w-6xl w-full mx-auto px-4 py-10">
+    <div class="shop-hero">
+      <div class="shop-hero-tile"><i class="fa-solid fa-calendar-days"></i></div>
+      <div class="min-w-0 flex-1">
+        <span id="event-count" class="shop-count"><i class="fa-solid fa-flag-checkered"></i><span></span></span>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-white mt-2">Events</h1>
+        <p class="text-white/70 mt-1">Alle Veranstaltungen auf einen Blick: wann sie stattfinden, wer sie hostet und worum es geht.</p>
+      </div>
+    </div>
+    <div class="flex gap-2 mb-6">
+      <div class="shop-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="event-search" placeholder="Event oder Host suchen…" autocomplete="off" class="bg-stone-950 border border-stone-700 rounded-lg px-3 py-2.5 text-sm text-stone-200 focus:outline-none focus:border-amber-500" style="width:100%;padding-left:2.4rem;background:rgba(0,0,0,.35);border-color:rgba(245,158,11,.3)"></div>
+      <button id="event-add" class="admin-only px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold whitespace-nowrap">+ Event hinzufügen</button>
+    </div>
+    <div id="event-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    <h2 id="event-past-title" class="text-sm font-bold uppercase tracking-widest text-white/50 mt-10 mb-4" style="display:none">Vergangene Events</h2>
+    <div id="event-past" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" style="opacity:.6"></div>
   </main>
 </div>
 <div id="lightbox" class="fixed inset-0 z-[70] bg-black/85 items-center justify-center p-6 cursor-zoom-out" style="display:none"><img id="lightbox-img" alt="" class="max-w-full max-h-full rounded-lg shadow-2xl"></div>
@@ -1113,15 +1160,17 @@ const appEl = document.getElementById('app');
 let started = false;
 function route() {
   const hash = location.hash;
-  const open = hash === '#app', shops = hash === '#shops';
+  const open = hash === '#app', shops = hash === '#shops', evs = hash === '#events';
   appEl.style.display = open ? 'flex' : 'none';
   document.getElementById('shop-page').style.display = shops ? 'flex' : 'none';
-  document.body.style.overflow = (open || shops) ? 'hidden' : '';
+  document.getElementById('events-page').style.display = evs ? 'flex' : 'none';
+  document.body.style.overflow = (open || shops || evs) ? 'hidden' : '';
   if (open) {
     if (!started) { started = true; init(); } else centerMap();
   }
   if (shops) { renderShopModal(); document.getElementById('shop-page').scrollTop = 0; }
-  if (!open && !shops && typeof updateNavPill === 'function') requestAnimationFrame(updateNavPill);
+  if (evs) { renderEvents(); document.getElementById('events-page').scrollTop = 0; }
+  if (!open && !shops && !evs && typeof updateNavPill === 'function') requestAnimationFrame(updateNavPill);
 }
 window.addEventListener('hashchange', route);
 document.getElementById('preview').src = document.getElementById('map-image').src;
@@ -1134,7 +1183,7 @@ let baseline = snapshot();
 function applyData(d) {
   state.claims = d.c; site = d.s;
   window.renderGrid(state.claims.map(c => [c.name, c.color]));
-  renderPois(); renderVotes(); renderShopModal(); renderPoiModal();
+  renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents();
   if (started) render();
 }
 function applyLocal() {
@@ -1754,6 +1803,93 @@ function shopCard(s) {
   return card;
 }
 
+// ================= Events =================
+const EV_MONTHS = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+const EV_DAYS = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+const evStart = e => { if (!e.date) return null; const d = new Date(e.date + 'T' + (e.time || '00:00')); return isNaN(d) ? null : d; };
+const evIsPast = e => { const d = evStart(e); return !!d && d.getTime() + 3 * 3600e3 < Date.now(); };
+const evSort = (a, b) => { const x = evStart(a), y = evStart(b); return (x ? x.getTime() : Infinity) - (y ? y.getTime() : Infinity); };
+function evRelative(e) {
+  const d = evStart(e); if (!d || evIsPast(e)) return '';
+  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  const d0 = new Date(d); d0.setHours(0, 0, 0, 0);
+  const n = Math.round((d0 - t0) / 864e5);
+  return n <= 0 ? 'Heute' : n === 1 ? 'Morgen' : n <= 7 ? 'In ' + n + ' Tagen' : '';
+}
+function eventCardView(e) {
+  const card = el('div', 'shop-card');
+  const d = evStart(e);
+  const head = el('div', 'shop-card-head');
+  head.innerHTML = '<div class="ev-date"><b></b><span></span></div><div class="min-w-0 flex flex-col gap-1"><div class="font-extrabold text-white text-lg leading-tight"></div><div class="text-xs text-white/60 ev-when"></div></div>';
+  head.querySelector('b').textContent = d ? d.getDate() : '?';
+  head.querySelector('.ev-date span').textContent = d ? EV_MONTHS[d.getMonth()] : 'Datum';
+  head.querySelector('.font-extrabold').textContent = e.title || 'Event';
+  head.querySelector('.ev-when').textContent = d ? EV_DAYS[d.getDay()] + ', ' + d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Datum folgt';
+  card.appendChild(head);
+  const chips = el('div', 'flex flex-wrap gap-2');
+  const rel = evRelative(e);
+  if (rel) chips.appendChild(el('span', 'ev-chip ev-soon', '<i class="fa-solid fa-bolt"></i>' + esc(rel)));
+  chips.appendChild(el('span', 'ev-chip', '<i class="fa-regular fa-clock"></i>' + (e.time ? esc(e.time) + ' Uhr' : 'Uhrzeit folgt')));
+  card.appendChild(chips);
+  if (e.host) {
+    const h = el('div', 'flex flex-wrap items-center gap-2 text-xs text-white/60', '<span><i class="fa-solid fa-crown text-amber-400 mr-1"></i>Host</span>');
+    splitNames(e.host).forEach(n => h.appendChild(nameChip(n)));
+    card.appendChild(h);
+  }
+  if (e.desc) { const x = el('div', 'shop-sells'); x.innerHTML = '<i class="fa-solid fa-circle-info"></i>'; const t = el('div', 'whitespace-pre-line min-w-0'); t.textContent = e.desc; x.appendChild(t); card.appendChild(x); }
+  return card;
+}
+function eventCardEdit(e) {
+  const card = el('div', 'shop-card');
+  card.innerHTML = '<input data-f="title" class="' + INP + '" placeholder="Name des Events" value="' + esc(e.title) + '">' +
+    '<div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] text-stone-400">Datum</label><input data-f="date" type="date" class="' + INP + '" value="' + esc(e.date) + '"></div>' +
+    '<div><label class="text-[10px] text-stone-400">Uhrzeit</label><input data-f="time" type="time" class="' + INP + '" value="' + esc(e.time) + '"></div></div>' +
+    '<input data-f="host" class="' + INP + '" placeholder="Host (Ingame-Name, mehrere mit Komma)" value="' + esc(e.host) + '">' +
+    '<textarea data-f="desc" rows="3" class="' + INP + '" placeholder="Was für ein Event ist das? Regeln, Preise, Treffpunkt …">' + esc(e.desc) + '</textarea>';
+  bindFields(card, e, f => { if (f === 'date' || f === 'time') return; saveLocal(); });
+  card.querySelectorAll('input[type=date],input[type=time]').forEach(i => i.addEventListener('change', () => { saveLocal(); renderEvents(); }));
+  card.querySelectorAll('[data-f]').forEach(i => i.addEventListener('input', saveLocal));
+  const del = mkBtn('Event löschen', 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
+  del.addEventListener('click', () => { if (!confirm('Dieses Event wirklich löschen?')) return; site.events = site.events.filter(x => x.id !== e.id); renderEvents(); saveLocal(); });
+  card.appendChild(del);
+  return card;
+}
+function renderEvents() {
+  const list = $('event-list'), past = $('event-past'), tg = $('event-teaser-grid');
+  if (!list || !tg) return;
+  const all = (site.events || []).slice().sort(evSort);
+  const q = (($('event-search') || {}).value || '').trim().toLowerCase();
+  const cnt = $('event-count'); if (cnt) { const n = all.filter(e => !evIsPast(e)).length; cnt.querySelector('span').textContent = n + (n === 1 ? ' kommendes Event' : ' kommende Events'); }
+  const match = e => !q || ((e.title || '') + ' ' + (e.host || '') + ' ' + (e.desc || '')).toLowerCase().includes(q);
+  const up = all.filter(e => !evIsPast(e) && match(e)), old = all.filter(e => evIsPast(e) && match(e)).reverse();
+  const mk = e => isAdmin ? eventCardEdit(e) : eventCardView(e);
+  const focused = document.activeElement && document.activeElement.closest && document.activeElement.closest('#events-page') && document.activeElement.matches('input,textarea') && document.activeElement.dataset.f;
+  if (!(isAdmin && focused)) {
+    list.innerHTML = ''; past.innerHTML = '';
+    if (!up.length) {
+      const e = el('div', 'shop-empty', '<i class="fa-solid ' + (q ? 'fa-magnifying-glass' : 'fa-calendar-days') + '"></i><div class="font-bold text-white text-lg"></div><div class="mt-1"></div>');
+      e.children[1].textContent = q ? 'Kein Event gefunden' : 'Keine anstehenden Events';
+      e.children[2].textContent = q ? 'Versuch einen anderen Namen.' : (isAdmin ? 'Füge das erste mit „+ Event hinzufügen“ hinzu.' : 'Schau bald wieder vorbei.');
+      list.appendChild(e);
+    }
+    up.forEach(e => list.appendChild(mk(e)));
+    old.forEach(e => past.appendChild(mk(e)));
+    $('event-past-title').style.display = old.length ? '' : 'none';
+  }
+  tg.innerHTML = '';
+  const next = all.filter(e => !evIsPast(e)).slice(0, 3);
+  if (!next.length) { tg.appendChild(el('p', 'text-white/50 text-sm sm:col-span-2 lg:col-span-3', 'Aktuell sind keine Events geplant.')); return; }
+  next.forEach(e => { const c = eventCardView(e); const a = el('a', 'block'); a.href = '#events'; a.appendChild(c); tg.appendChild(a); });
+}
+$('event-search').addEventListener('input', renderEvents);
+$('event-add').addEventListener('click', () => {
+  site.events = site.events || [];
+  const t = new Date(); t.setDate(t.getDate() + 1);
+  const iso = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+  site.events.push({ id: 'e' + Date.now().toString(36), title: 'Neues Event', date: iso, time: '18:00', host: '', desc: '' });
+  $('event-search').value = ''; renderEvents(); saveLocal();
+});
+
 // ================= Abstimmung =================
 let voteCache = {}, voteLoading = {};
 const voterId = (() => {
@@ -2121,7 +2257,7 @@ loadStats();
 setInterval(loadStats, 60000);
 
 // ---- Navigation: Markierung gleitet beim Scrollen von Abschnitt zu Abschnitt
-const NAV_SECTIONS = ['home', 'gebiete', 'kartenvorschau', 'shop-teaser', 'bestenlisten', 'live', 'abstimmung'];
+const NAV_SECTIONS = ['home', 'gebiete', 'kartenvorschau', 'shop-teaser', 'event-teaser', 'bestenlisten', 'live', 'abstimmung'];
 let navForced = null;
 function updateNavPill() {
   const nav = $('main-nav'), pill = $('nav-pill');
@@ -2192,7 +2328,7 @@ function setAdmin(on) {
   state.activeClaimId = null; state.activeTransformId = null; state.transformAction = null;
   if (on) applyLocal(); else applyData(JSON.parse(baseline));
   updateActiveClaimEditor();
-  renderPois(); renderVotes(); renderShopModal(); renderPoiModal();
+  renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents();
   if (started) render();
 }
 function openLogin() { codeInput.value = ''; errEl.style.display = 'none'; modalEl.style.display = 'flex'; setTimeout(() => codeInput.focus(), 0); }
@@ -2215,8 +2351,10 @@ applyLocal();
 renderPois();
 renderVotes();
 renderShopModal();
+renderEvents();
 document.getElementById('logo-small').src = document.getElementById('logo-big').src;
 document.getElementById('logo-shop').src = document.getElementById('logo-big').src;
+document.getElementById('logo-events').src = document.getElementById('logo-big').src;
 document.getElementById('logo-tool').src = document.getElementById('logo-big').src;
 route();
 </script>

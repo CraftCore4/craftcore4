@@ -260,7 +260,7 @@
 
 <div id="admin-bar" class="admin-only fixed bottom-4 left-4 z-40 items-center gap-2 bg-stone-900/95 border border-amber-500/40 rounded-full px-3 py-2 shadow-xl backdrop-blur flex">
   <span class="text-[11px] font-bold uppercase tracking-widest text-amber-400 mr-1">Admin</span>
-  <button id="bar-save" class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-600 hover:bg-emerald-500 text-white">Als Seite speichern</button>
+  <span id="cloud-status" class="text-[11px] font-semibold" style="display:none"></span>
   <button id="bar-logout" class="px-3 py-1 text-xs font-semibold rounded-full bg-stone-700 hover:bg-stone-600 text-white">Abmelden</button>
 </div>
 
@@ -287,8 +287,6 @@
             <button id="btn-admin-login" class="viewer-only flex items-center gap-2 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-lg border border-stone-700 transition"><i class="fa-solid fa-lock text-stone-400"></i><span>Admin</span></button>
             <button id="btn-admin-logout" class="admin-only flex items-center gap-2 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-lg border border-stone-700 transition"><i class="fa-solid fa-lock-open text-emerald-400"></i><span>Abmelden</span></button>
             <a href="#" class="flex items-center gap-2 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-lg border border-stone-700 transition"><i class="fa-solid fa-arrow-left text-stone-400"></i><span>Startseite</span></a>
-            <button id="btn-save-page" class="admin-only flex items-center gap-2 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition"><i class="fa-solid fa-floppy-disk"></i><span>Als Seite speichern</span></button>
-            <button id="btn-reset-local" class="admin-only flex items-center gap-2 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-lg border border-stone-700 transition"><i class="fa-solid fa-rotate-left text-stone-400"></i><span>Zurücksetzen</span></button>
             <button id="btn-add-claim" class="admin-only flex items-center gap-2 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition shadow-md shadow-amber-600/20">
                 <i class="fa-solid fa-plus"></i>
                 <span>Zone Hinzufügen</span>
@@ -522,17 +520,33 @@
     <div class="flex gap-2 mb-6">
       <div class="shop-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="event-search" placeholder="Event oder Host suchen…" autocomplete="off" class="bg-stone-950 border border-stone-700 rounded-lg px-3 py-2.5 text-sm text-stone-200 focus:outline-none focus:border-amber-500" style="width:100%;padding-left:2.4rem;background:rgba(0,0,0,.35);border-color:rgba(245,158,11,.3)"></div>
       <button id="event-add" class="admin-only px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold whitespace-nowrap">+ Event hinzufügen</button>
+      <button id="event-submit" class="viewer-only px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold whitespace-nowrap">+ Event eintragen</button>
     </div>
     <div id="event-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     <h2 id="event-past-title" class="text-sm font-bold uppercase tracking-widest text-white/50 mt-10 mb-4" style="display:none">Vergangene Events</h2>
     <div id="event-past" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4" style="opacity:.6"></div>
   </main>
 </div>
+<div id="event-submit-modal" class="fixed inset-0 z-[65] bg-black/70 items-center justify-center p-4" style="display:none">
+  <form id="event-submit-form" class="w-full max-w-md max-h-[92vh] overflow-y-auto rounded-2xl border border-amber-500/40 bg-stone-900 p-5 flex flex-col gap-3 shadow-2xl">
+    <div class="flex items-center justify-between"><div class="text-lg font-extrabold text-white"><i class="fa-solid fa-calendar-plus mr-2 text-amber-400"></i>Event eintragen</div><button type="button" id="es-close" class="w-8 h-8 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800"><i class="fa-solid fa-xmark"></i></button></div>
+    <input id="es-title" maxlength="60" required placeholder="Name des Events" class="w-full bg-stone-950 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-200 focus:outline-none focus:border-amber-500">
+    <div class="grid grid-cols-2 gap-2">
+      <div><label class="text-[10px] text-stone-400">Datum</label><input id="es-date" type="date" required class="w-full bg-stone-950 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-200 focus:outline-none focus:border-amber-500"></div>
+      <div><label class="text-[10px] text-stone-400">Uhrzeit</label><input id="es-time" type="time" class="w-full bg-stone-950 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-200 focus:outline-none focus:border-amber-500"></div>
+    </div>
+    <input id="es-host" maxlength="80" placeholder="Host (Ingame-Name, mehrere mit Komma)" class="w-full bg-stone-950 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-200 focus:outline-none focus:border-amber-500">
+    <textarea id="es-desc" rows="3" maxlength="500" placeholder="Was für ein Event ist das? Regeln, Preise, Treffpunkt …" class="w-full bg-stone-950 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-200 focus:outline-none focus:border-amber-500"></textarea>
+    <div id="es-error" class="text-xs text-red-400" style="display:none"></div>
+    <button id="es-send" type="submit" class="px-4 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold disabled:opacity-50">Event veröffentlichen</button>
+  </form>
+</div>
 <div id="lightbox" class="fixed inset-0 z-[70] bg-black/85 items-center justify-center p-6 cursor-zoom-out" style="display:none"><img id="lightbox-img" alt="" class="max-w-full max-h-full rounded-lg shadow-2xl"></div>
 <div id="admin-modal" class="fixed inset-0 z-[60] items-center justify-center bg-black/60" style="display:none">
-  <div class="bg-stone-900 border border-stone-700 rounded-xl p-5 w-72 flex flex-col gap-3 shadow-2xl">
+  <div class="bg-stone-900 border border-stone-700 rounded-xl p-5 w-80 max-w-[92vw] flex flex-col gap-3 shadow-2xl">
     <div class="text-sm font-bold text-stone-100"><i class="fa-solid fa-lock mr-2 text-stone-400"></i>Admin-Login</div>
-    <input id="admin-code" type="password" inputmode="numeric" autocomplete="off" placeholder="Code" class="bg-stone-950 border border-stone-700 rounded px-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500">
+    <input id="admin-code" type="password" autocomplete="current-password" placeholder="Passwort" class="bg-stone-950 border border-stone-700 rounded px-3 py-2 text-sm text-stone-100 focus:outline-none focus:border-amber-500">
+    <input id="admin-key" type="text" autocomplete="off" placeholder="Firebase API-Schlüssel (nur beim ersten Mal)" class="bg-stone-950 border border-stone-700 rounded px-3 py-2 text-xs text-stone-100 focus:outline-none focus:border-amber-500">
     <div id="admin-error" class="text-xs text-red-400" style="display:none">Falscher Code</div>
     <div class="flex gap-2 justify-end">
       <button id="admin-cancel" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200">Abbrechen</button>
@@ -1211,7 +1225,7 @@ function applyData(d) {
   if (started) render();
 }
 function applyLocal() {
-  if (!isAdmin) return;
+  if (!isAdmin || fbAuth) return;
   try {
     const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
     if (s && s.base === baseline && s.data && Array.isArray(s.data.c) && s.data.c.length) applyData(s.data);
@@ -1219,19 +1233,15 @@ function applyLocal() {
 }
 function saveLocal() {
   if (!isAdmin) return;
+  const cur = snapshot();
+  if (fbAuth) { cloudSchedule(cur); return; }
   try {
-    const cur = snapshot();
     if (cur === baseline) localStorage.removeItem(LS_KEY);
     else localStorage.setItem(LS_KEY, JSON.stringify({ base: baseline, data: JSON.parse(cur) }));
   } catch (e) {}
 }
 ['mouseup', 'input', 'click', 'change'].forEach(ev => document.addEventListener(ev, () => setTimeout(saveLocal, 0)));
 
-document.getElementById('btn-reset-local').addEventListener('click', () => {
-  if (!confirm('Alle eigenen Änderungen in diesem Browser verwerfen?')) return;
-  try { localStorage.removeItem(LS_KEY); } catch (e) {}
-  location.reload();
-});
 
 // Speichert den aktuellen Stand als fertige index.html zum Hochladen
 async function savePage() {
@@ -1257,8 +1267,6 @@ async function savePage() {
     alert('Speichern als Seite klappt nur auf der veröffentlichten Website (nicht per Doppelklick auf die Datei).');
   }
 }
-document.getElementById('btn-save-page').addEventListener('click', savePage);
-document.getElementById('bar-save').addEventListener('click', savePage);
 document.getElementById('bar-logout').addEventListener('click', () => setAdmin(false));
 document.getElementById('footer-admin').addEventListener('click', () => openLogin());
 
@@ -1996,12 +2004,12 @@ function eventCardEdit(e) {
 function renderEvents() {
   const list = $('event-list'), past = $('event-past'), tg = $('event-teaser-grid');
   if (!list || !tg) return;
-  const all = (site.events || []).slice().sort(evSort);
+  const all = allEvents().sort(evSort);
   const q = (($('event-search') || {}).value || '').trim().toLowerCase();
   const cnt = $('event-count'); if (cnt) { const n = all.filter(e => !evIsPast(e)).length; cnt.querySelector('span').textContent = n + (n === 1 ? ' kommendes Event' : ' kommende Events'); }
   const match = e => !q || ((e.title || '') + ' ' + (e.host || '') + ' ' + (e.desc || '')).toLowerCase().includes(q);
   const up = all.filter(e => !evIsPast(e) && match(e)), old = all.filter(e => evIsPast(e) && match(e)).reverse();
-  const mk = e => isAdmin ? eventCardEdit(e) : eventCardView(e);
+  const mk = e => isAdmin ? (e.pub ? eventCardPub(e) : eventCardEdit(e)) : eventCardView(e);
   const focused = document.activeElement && document.activeElement.closest && document.activeElement.closest('#events-page') && document.activeElement.matches('input,textarea') && document.activeElement.dataset.f;
   if (!(isAdmin && focused)) {
     list.innerHTML = ''; past.innerHTML = '';
@@ -2021,6 +2029,15 @@ function renderEvents() {
   next.forEach(e => { const c = eventCardView(e); const a = el('a', 'block'); a.href = '#events'; a.appendChild(c); tg.appendChild(a); });
 }
 $('event-search').addEventListener('input', renderEvents);
+let pubEvents = [];
+const allEvents = () => { const hid = new Set(site.hiddenEvents || []); return (site.events || []).concat(pubEvents.filter(e => !hid.has(e.id))); };
+function eventCardPub(e) {
+  const c = eventCardView(e);
+  c.appendChild(el('div', 'text-[11px] text-white/40', '<i class="fa-solid fa-user mr-1"></i>Von einem Besucher eingetragen'));
+  const b = mkBtn('Event ausblenden', 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
+  b.addEventListener('click', () => { if (!confirm('Dieses Event ausblenden?')) return; site.hiddenEvents = (site.hiddenEvents || []).concat(e.id); renderEvents(); saveLocal(); });
+  c.appendChild(b); return c;
+}
 $('event-add').addEventListener('click', () => {
   site.events = site.events || [];
   const t = new Date(); t.setDate(t.getDate() + 1);
@@ -2456,26 +2473,179 @@ document.getElementById('btn-label-reset').addEventListener('click', () => {
   if (c) { delete c.lo; render(); saveLocal(); }
 });
 
+// ================= Cloud: alles live in der Firebase-Datenbank =================
+const FB_EMAIL = 'admin@craftcore4.de';
+const fbKey = () => { try { return localStorage.getItem('cc4_fbkey') || ''; } catch (e) { return ''; } };
+let fbAuth = null, cloudTimer = null, cloudRetry = null, lastCloudSnap = null, cloudUpdated = null, cloudBusy = false;
+try { const a = JSON.parse(sessionStorage.getItem('cc4_auth') || 'null'); if (a && a.refreshToken) fbAuth = { refreshToken: a.refreshToken, idToken: null, exp: 0 }; } catch (e) {}
+function fbErr(code) {
+  const m = String(code || '');
+  if (/INVALID_LOGIN|INVALID_PASSWORD|EMAIL_NOT_FOUND/.test(m)) return 'Falsches Passwort (oder Admin-Nutzer in Firebase nicht angelegt).';
+  if (/OPERATION_NOT_ALLOWED|PASSWORD_LOGIN_DISABLED/.test(m)) return 'In Firebase ist die Anmeldung per E-Mail/Passwort noch nicht aktiviert.';
+  if (/API_KEY|API key/i.test(m)) return 'Der Firebase API-Schlüssel ist ungültig.';
+  if (/TOO_MANY/.test(m)) return 'Zu viele Versuche. Bitte kurz warten.';
+  return 'Anmeldung fehlgeschlagen (' + m + ').';
+}
+async function fbSignIn(pw, key) {
+  let r;
+  try { r = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + encodeURIComponent(key), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: FB_EMAIL, password: pw, returnSecureToken: true }) }); }
+  catch (e) { throw new Error('Keine Verbindung zu Firebase.'); }
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(fbErr(j.error && j.error.message));
+  fbAuth = { idToken: j.idToken, refreshToken: j.refreshToken, exp: Date.now() + (+j.expiresIn || 3600) * 1000 };
+  try { sessionStorage.setItem('cc4_auth', JSON.stringify({ refreshToken: j.refreshToken })); } catch (e) {}
+}
+async function getToken() {
+  if (!fbAuth) throw new Error('Nicht angemeldet');
+  if (fbAuth.idToken && fbAuth.exp - 60000 > Date.now()) return fbAuth.idToken;
+  const r = await fetch('https://securetoken.googleapis.com/v1/token?key=' + encodeURIComponent(fbKey()), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(fbAuth.refreshToken) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error('Anmeldung abgelaufen, bitte neu anmelden.');
+  fbAuth = { idToken: j.id_token, refreshToken: j.refresh_token, exp: Date.now() + (+j.expires_in || 3600) * 1000 };
+  try { sessionStorage.setItem('cc4_auth', JSON.stringify({ refreshToken: j.refresh_token })); } catch (e) {}
+  return fbAuth.idToken;
+}
+function setCloudStatus(kind, msg) {
+  const e = $('cloud-status'); if (!e) return;
+  if (!kind) { e.style.display = 'none'; return; }
+  e.style.display = ''; e.textContent = msg; e.style.color = kind === 'error' ? '#f87171' : '#fbbf24';
+}
+function normalizeSite(x) {
+  x = x || {};
+  ['pois', 'shops', 'polls', 'events', 'hiddenEvents'].forEach(k => { if (!Array.isArray(x[k])) x[k] = x[k] && typeof x[k] === 'object' ? Object.values(x[k]) : []; });
+  if (x.players && !Array.isArray(x.players)) x.players = Object.values(x.players);
+  x.shops.forEach(sh => { if (!Array.isArray(sh.images)) sh.images = sh.images ? Object.values(sh.images) : []; });
+  x.polls.forEach(po => { if (!Array.isArray(po.candidates)) po.candidates = po.candidates ? Object.values(po.candidates) : []; po.candidates.forEach(c => { if (!Array.isArray(c.images)) c.images = c.images ? Object.values(c.images) : []; }); });
+  return x;
+}
+function normalizeClaims(l) {
+  l = Array.isArray(l) ? l : (l && typeof l === 'object' ? Object.values(l) : []);
+  l.forEach(c => { if (c.points && !Array.isArray(c.points)) c.points = Object.values(c.points); if (!Array.isArray(c.images)) c.images = c.images ? Object.values(c.images) : []; });
+  return l;
+}
+const cloudDirty = () => !!cloudTimer || cloudBusy;
+async function loadCloudData() {
+  const base = dbUrl(); if (!base) return;
+  try {
+    const [d, u] = await Promise.all([fetch(base + '/content/data.json').then(r => { if (!r.ok) throw new Error('read'); return r.json(); }), fetch(base + '/content/updated.json').then(r => r.json())]);
+    if (!d || !d.claims) { cloudUpdated = null; if (fbAuth && isAdmin) { lastCloudSnap = null; cloudSchedule(snapshot() + ' '); } return; }
+    cloudUpdated = u;
+    const claims = normalizeClaims(d.claims), st = normalizeSite(d.site);
+    if (!st.voteDb) st.voteDb = site.voteDb;
+    const next = JSON.stringify({ c: claims, s: st });
+    if (next === snapshot()) { lastCloudSnap = next; baseline = next; return; }
+    applyData({ c: claims, s: st });
+    baseline = snapshot(); lastCloudSnap = baseline;
+    if (typeof renderInfoCard === 'function') renderInfoCard();
+    if (isAdmin && typeof updateActiveClaimEditor === 'function') updateActiveClaimEditor();
+  } catch (e) {}
+}
+async function loadPubEvents() {
+  const base = dbUrl(); if (!base) return;
+  try {
+    const r = await fetch(base + '/events.json'); if (!r.ok) return;
+    const o = (await r.json()) || {};
+    const str = (v, n) => String(v == null ? '' : v).slice(0, n);
+    const list = Object.entries(o).filter(([k, v]) => v && typeof v === 'object' && v.title && v.date).map(([k, v]) => ({ id: 'p_' + k, pub: true, title: str(v.title, 60), date: str(v.date, 10), time: str(v.time, 5), host: str(v.host, 80), desc: str(v.desc, 500) }));
+    if (JSON.stringify(list) !== JSON.stringify(pubEvents)) { pubEvents = list; renderEvents(); }
+  } catch (e) {}
+}
+async function pollCloud() {
+  const base = dbUrl(); if (!base) return;
+  try {
+    if (!(isAdmin && fbAuth && cloudDirty())) {
+      const u = await fetch(base + '/content/updated.json').then(r => r.json());
+      if (u && u !== cloudUpdated) await loadCloudData();
+    }
+  } catch (e) {}
+  loadPubEvents();
+}
+function cloudSchedule(cur) {
+  if (cur === lastCloudSnap) return;
+  clearTimeout(cloudTimer); cloudTimer = setTimeout(pushCloud, 1200);
+}
+async function pushCloud() {
+  clearTimeout(cloudTimer); cloudTimer = null; clearTimeout(cloudRetry);
+  if (!fbAuth || !isAdmin || !dbUrl()) return;
+  const snap = snapshot(); if (snap === lastCloudSnap) { setCloudStatus(''); return; }
+  cloudBusy = true;
+  try {
+    const tok = await getToken();
+    const r = await fetch(dbUrl() + '/content.json?auth=' + encodeURIComponent(tok), { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: { claims: state.claims, site }, updated: { '.sv': 'timestamp' } }) });
+    if (r.status === 401 || r.status === 403) throw new Error('Keine Schreibrechte. Regeln in Firebase prüfen.');
+    if (!r.ok) throw new Error('Fehler ' + r.status);
+    lastCloudSnap = snap; baseline = snap; setCloudStatus('');
+    try { cloudUpdated = await fetch(dbUrl() + '/content/updated.json').then(x => x.json()); } catch (e) {}
+  } catch (e) {
+    setCloudStatus('error', 'Nicht gespeichert: ' + (e.message || 'Fehler'));
+    cloudRetry = setTimeout(() => { if (snapshot() !== lastCloudSnap) pushCloud(); }, 8000);
+  }
+  cloudBusy = false;
+  if (snapshot() !== lastCloudSnap && !cloudRetry) cloudSchedule(snapshot());
+}
+window.addEventListener('beforeunload', e => { if (cloudTimer || (fbAuth && isAdmin && snapshot() !== lastCloudSnap)) { e.preventDefault(); e.returnValue = ''; } });
+setInterval(pollCloud, 10000);
+
+// Besucher-Events (offen für alle)
+(function () {
+  const m = $('event-submit-modal'), f = $('event-submit-form'), err = $('es-error');
+  const open = () => { err.style.display = 'none'; m.style.display = 'flex'; };
+  const close = () => { m.style.display = 'none'; };
+  $('event-submit').addEventListener('click', open);
+  $('es-close').addEventListener('click', close);
+  m.addEventListener('mousedown', e => { if (e.target === m) close(); });
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const fail = t => { err.textContent = t; err.style.display = 'block'; };
+    if (!dbUrl()) return fail('Die Datenbank ist nicht eingerichtet.');
+    try { if (Date.now() - (+localStorage.getItem('cc4_evlast') || 0) < 60000) return fail('Bitte warte kurz, bevor du das nächste Event einträgst.'); } catch (x) {}
+    const ev = { title: $('es-title').value.trim().slice(0, 60), date: $('es-date').value, time: $('es-time').value, host: $('es-host').value.trim().slice(0, 80), desc: $('es-desc').value.trim().slice(0, 500), created: { '.sv': 'timestamp' } };
+    if (!ev.title || !/^\d{4}-\d{2}-\d{2}$/.test(ev.date)) return fail('Bitte Name und Datum angeben.');
+    if (!ev.time) delete ev.time; if (!ev.host) delete ev.host; if (!ev.desc) delete ev.desc;
+    $('es-send').disabled = true;
+    try {
+      const r = await fetch(dbUrl() + '/events.json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ev) });
+      if (!r.ok) throw new Error('Fehler ' + r.status);
+      try { localStorage.setItem('cc4_evlast', String(Date.now())); } catch (x) {}
+      f.reset(); close(); await loadPubEvents();
+    } catch (x) { fail('Das Event konnte nicht gespeichert werden. Bitte später nochmal versuchen.'); }
+    $('es-send').disabled = false;
+  });
+})();
+
 // ---- Admin-Login ----
-const ADMIN_CODE = '7421'; // hier den Code ändern
+const ADMIN_CODE = '7421'; // nur Notzugang ohne Firebase-Login (Änderungen bleiben dann nur in diesem Browser)
 const modalEl = document.getElementById('admin-modal');
 const codeInput = document.getElementById('admin-code');
 const errEl = document.getElementById('admin-error');
 function setAdmin(on) {
   isAdmin = on;
   document.body.classList.toggle('is-admin', on);
-  try { on ? sessionStorage.setItem('cc4_admin', '1') : sessionStorage.removeItem('cc4_admin'); } catch (e) {}
+  try { on ? sessionStorage.setItem('cc4_admin', '1') : (sessionStorage.removeItem('cc4_admin'), sessionStorage.removeItem('cc4_auth')); } catch (e) {}
+  if (!on) { fbAuth = null; clearTimeout(cloudTimer); cloudTimer = null; setCloudStatus(''); }
+  else setCloudStatus(fbAuth ? '' : 'local', 'Nur in diesem Browser');
   state.activeClaimId = null; state.activeTransformId = null; state.transformAction = null;
   if (on) applyLocal(); else applyData(JSON.parse(baseline));
   updateActiveClaimEditor();
   renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents(); renderPlayers();
   if (started) render();
 }
-function openLogin() { codeInput.value = ''; errEl.style.display = 'none'; modalEl.style.display = 'flex'; setTimeout(() => codeInput.focus(), 0); }
+function openLogin() { codeInput.value = ''; errEl.style.display = 'none'; $('admin-key').style.display = fbKey() ? 'none' : ''; modalEl.style.display = 'flex'; setTimeout(() => codeInput.focus(), 0); }
 function closeLogin() { modalEl.style.display = 'none'; }
-function tryLogin() {
-  if (codeInput.value.trim() === ADMIN_CODE) { closeLogin(); setAdmin(true); }
-  else { errEl.style.display = 'block'; codeInput.select(); }
+async function tryLogin() {
+  const pw = codeInput.value.trim(); if (!pw) return;
+  const typed = $('admin-key').value.trim(), key = typed || fbKey();
+  const ok = $('admin-ok'); ok.disabled = true; errEl.style.display = 'none';
+  try {
+    if (key && dbUrl()) {
+      await fbSignIn(pw, key);
+      try { localStorage.setItem('cc4_fbkey', key); } catch (e) {}
+      closeLogin(); setAdmin(true);
+      await loadCloudData();
+    } else if (pw === ADMIN_CODE) { closeLogin(); setAdmin(true); }
+    else throw new Error(dbUrl() ? 'Für den Admin-Login den Firebase API-Schlüssel eintragen.' : 'Falscher Code');
+  } catch (e) { errEl.textContent = e.message || 'Fehler'; errEl.style.display = 'block'; codeInput.select(); }
+  ok.disabled = false;
 }
 document.getElementById('btn-admin-login').addEventListener('click', openLogin);
 document.getElementById('btn-admin-logout').addEventListener('click', () => setAdmin(false));
@@ -2485,7 +2655,7 @@ codeInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') tryLogin();
   if (e.key === 'Escape') closeLogin();
 });
-try { if (sessionStorage.getItem('cc4_admin') === '1') { isAdmin = true; document.body.classList.add('is-admin'); } } catch (e) {}
+try { if (sessionStorage.getItem('cc4_admin') === '1' || fbAuth) { isAdmin = true; document.body.classList.add('is-admin'); if (!fbAuth) setTimeout(() => setCloudStatus('local', 'Nur in diesem Browser'), 0); } } catch (e) {}
 
 applyLocal();
 renderPois();
@@ -2496,6 +2666,7 @@ renderPlayers();
 document.getElementById('logo-small').src = document.getElementById('logo-big').src;
 document.getElementById('logo-shop').src = document.getElementById('logo-big').src;
 document.getElementById('logo-events').src = document.getElementById('logo-big').src;
+loadCloudData().then(pollCloud);
 document.getElementById('logo-tool').src = document.getElementById('logo-big').src;
 route();
 </script>

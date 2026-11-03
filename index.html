@@ -2707,14 +2707,16 @@ codeInput.addEventListener('keydown', (e) => {
 });
 try { if (sessionStorage.getItem('cc4_admin') === '1') { isAdmin = true; document.body.classList.add('is-admin'); } } catch (e) {}
 
-applyLocal();
-renderPois();
-renderVotes();
-renderShopModal();
-renderEvents();
-renderPlayers();
-loadLive();
-startLive();
+setTimeout(function(){
+  applyLocal();
+  renderPois();
+  renderVotes();
+  renderShopModal();
+  renderEvents();
+  renderPlayers();
+  loadLive();
+  startLive();
+}, 0);
 document.getElementById('logo-small').src = document.getElementById('logo-big').src;
 document.getElementById('logo-shop').src = document.getElementById('logo-big').src;
 document.getElementById('logo-events').src = document.getElementById('logo-big').src;

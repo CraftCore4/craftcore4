@@ -1198,14 +1198,12 @@ function applyData(d) {
   if (started) render();
 }
 function applyLocal() {
-  if (!isAdmin) return;
   try {
     const s = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
-    if (s && s.base === baseline && s.data && Array.isArray(s.data.c) && s.data.c.length) applyData(s.data);
+    if (s && s.data && Array.isArray(s.data.c) && s.data.c.length) applyData(s.data);
   } catch (e) {}
 }
 function saveLocal() {
-  if (!isAdmin) return;
   try {
     const cur = snapshot();
     if (cur === baseline) localStorage.removeItem(LS_KEY);
@@ -1270,10 +1268,11 @@ function mergeLive(d) {
   const pick = o => { const r = {}; LIVE_FIELDS.forEach(k => { if (k in o) r[k] = o[k]; }); return r; };
   const base = pick(site), incoming = pick(d);
   const cur = JSON.stringify(base);
-  // Die Datenbank ist die Wahrheit. Was hier noch nicht drin ist, wird vorher hochgeschoben
-  // (siehe syncLocalUp), damit es beim Neuladen nicht "zurückspringt".
-  if (cur !== JSON.stringify(incoming)) Object.assign(site, incoming);
-  if (Array.isArray(d.claims) && d.claims.length) {
+  // Datenbank-Stand nur uebernehmen, wenn er neuer ist als der eigene und gerade nichts offen ist
+  const dbNewer = (typeof d.rev === 'number') && (d.rev > (liveSnap.rev || 0) || !lastPushOk);
+  const busy = pendingFields.size > 0 || (Date.now() - lastLocalEdit < 4000);
+  if (cur !== JSON.stringify(incoming) && dbNewer && !busy) Object.assign(site, incoming);
+  if (Array.isArray(d.claims) && d.claims.length && dbNewer && !busy) {
     const a = JSON.stringify(state.claims), b = JSON.stringify(d.claims);
     if (a !== b) state.claims = d.claims;
   }
@@ -1301,11 +1300,21 @@ async function loadLive() {
     const d = await r.json();
     if (!firstLoadDone) {
       firstLoadDone = true;
-      // was hier lokal noch nicht in der DB steht, zuerst hochschieben
+      // 1. lokalen Stand (aus dem Browser) anwenden, damit nichts verloren geht
+      try {
+        const loc = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+        if (loc && loc.data && Array.isArray(loc.data.c) && loc.data.c.length) {
+          state.claims = loc.data.c;
+          if (loc.data.s) Object.assign(site, loc.data.s);
+        }
+      } catch (e) {}
+      // 2. mit der Datenbank vergleichen und nur ueberschreiben, wenn die neuer ist
       liveSnap = d || {};
+      mergeLive(d);
+      // 3. alles, was lokal neuer ist, hochschieben
       await syncLocalUp();
       const r2 = await fetch(liveRef() + '.json', { cache: 'no-store' });
-      mergeLive(r2.ok ? await r2.json() : d);
+      if (r2.ok) mergeLive(await r2.json());
     } else {
       mergeLive(d);
     }

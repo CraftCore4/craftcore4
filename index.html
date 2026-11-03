@@ -1260,14 +1260,8 @@ const LIVE_FIELDS = ['pois', 'shops', 'polls', 'events', 'players'];
 let liveReady = false, liveLoaded = false, liveTimer = null, pushTimer = null;
 let localEdits = 0, liveRev = 0, lastLocalEdit = 0;
 const liveRef = () => dbUrl() + '/site';
-// Zufälliger Token im localStorage = Schreibrecht (gleiches Muster wie beim Abstimmen)
-const writeToken = (() => {
-  try {
-    let t = localStorage.getItem('cc4_wt');
-    if (!t) { t = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join(''); localStorage.setItem('cc4_wt', t); }
-    return t;
-  } catch (e) { return 'anon' + Math.random().toString(36).slice(2, 18); }
-})();
+// Kein Token: Schreibrecht kommt über den Admin-Login auf der Seite.
+// In den Regeln steht dafür:  "site": { ".read": true, ".write": true }
 function mergeLive(d) {
   if (!d || typeof d !== 'object') return;
   const pick = o => { const r = {}; LIVE_FIELDS.forEach(k => { if (k in o) r[k] = o[k]; }); return r; };
@@ -1306,14 +1300,14 @@ async function loadLive() {
     renderLiveViews();
   } catch (e) { /* Datenbank (noch) nicht erreichbar: Seite läuft mit den eingebauten Daten weiter */ }
 }
-async function pushLive() {
+async function pushLive(force) {
   const base = dbUrl();
-  if (!base || !isAdmin) return;
+  if (!base || (!isAdmin && !force)) return;
   const payload = {
     pois: site.pois || [], shops: site.shops || [], polls: site.polls || [],
     events: site.events || [], players: site.players || null,
     claims: state.claims || [], voteDb: site.voteDb || '',
-    wt: writeToken, rev: Date.now(), updated: Date.now()
+    rev: Date.now(), updated: Date.now()
   };
   try {
     const r = await fetch(liveRef() + '.json', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -1321,7 +1315,8 @@ async function pushLive() {
     localEdits = 0;
   } catch (e) {
     liveReady = false;
-    if (typeof toast === 'function') toast('Speichern in der Datenbank hat nicht geklappt – Rechte (Rules) prüfen.');
+    const msg = 'Speichern in der Datenbank hat nicht geklappt – bitte die Regeln (Rules) prüfen.';
+    if (typeof toast === 'function') toast(msg); else if (typeof alert === 'function') alert(msg);
   }
 }
 function pushLiveSoon() {

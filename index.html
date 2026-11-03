@@ -521,7 +521,7 @@
     </div>
     <div class="flex gap-2 mb-6">
       <div class="shop-search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input id="event-search" placeholder="Event oder Host suchen…" autocomplete="off" class="bg-stone-950 border border-stone-700 rounded-lg px-3 py-2.5 text-sm text-stone-200 focus:outline-none focus:border-amber-500" style="width:100%;padding-left:2.4rem;background:rgba(0,0,0,.35);border-color:rgba(245,158,11,.3)"></div>
-      <button id="event-add" class="admin-only px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold whitespace-nowrap">+ Event hinzufügen</button>
+      <button id="event-add" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold whitespace-nowrap">+ Event eintragen</button>
     </div>
     <div id="event-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     <h2 id="event-past-title" class="text-sm font-bold uppercase tracking-widest text-white/50 mt-10 mb-4" style="display:none">Vergangene Events</h2>
@@ -2086,9 +2086,13 @@ function eventCardEdit(e) {
   bindFields(card, e, f => { if (f === 'date' || f === 'time') return; saveLocal(); pushLiveSoon(); });
   card.querySelectorAll('input[type=date],input[type=time]').forEach(i => i.addEventListener('change', () => { saveLocal(); renderEvents(); pushLiveSoon(); }));
   card.querySelectorAll('[data-f]').forEach(i => i.addEventListener('input', saveLocal));
-  const del = mkBtn('Event löschen', 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
-  del.addEventListener('click', () => { if (!confirm('Dieses Event wirklich löschen?')) return; site.events = site.events.filter(x => x.id !== e.id); renderEvents(); saveLocal(); pushLiveSoon(); });
-  card.appendChild(del);
+  if (isAdmin || e.by === voterId) {
+    const del = mkBtn('Event löschen', 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
+    del.addEventListener('click', () => { if (!confirm('Dieses Event wirklich löschen?')) return; site.events = site.events.filter(x => x.id !== e.id); renderEvents(); saveLocal(); pushLiveSoon(); });
+    card.appendChild(del);
+  }
+  const own = el('div', 'text-[10px] text-stone-500', 'Von ' + (e.byName ? esc(e.byName) : 'einem Spieler') + ' eingetragen');
+  card.appendChild(own);
   return card;
 }
 function renderEvents() {
@@ -2099,14 +2103,14 @@ function renderEvents() {
   const cnt = $('event-count'); if (cnt) { const n = all.filter(e => !evIsPast(e)).length; cnt.querySelector('span').textContent = n + (n === 1 ? ' kommendes Event' : ' kommende Events'); }
   const match = e => !q || ((e.title || '') + ' ' + (e.host || '') + ' ' + (e.desc || '')).toLowerCase().includes(q);
   const up = all.filter(e => !evIsPast(e) && match(e)), old = all.filter(e => evIsPast(e) && match(e)).reverse();
-  const mk = e => isAdmin ? eventCardEdit(e) : eventCardView(e);
+  const mk = e => (isAdmin || e.by === voterId) ? eventCardEdit(e) : eventCardView(e);
   const focused = document.activeElement && document.activeElement.closest && document.activeElement.closest('#events-page') && document.activeElement.matches('input,textarea') && document.activeElement.dataset.f;
-  if (!(isAdmin && focused)) {
+  if (!((isAdmin || true) && focused)) {
     list.innerHTML = ''; past.innerHTML = '';
     if (!up.length) {
       const e = el('div', 'shop-empty', '<i class="fa-solid ' + (q ? 'fa-magnifying-glass' : 'fa-calendar-days') + '"></i><div class="font-bold text-white text-lg"></div><div class="mt-1"></div>');
       e.children[1].textContent = q ? 'Kein Event gefunden' : 'Keine anstehenden Events';
-      e.children[2].textContent = q ? 'Versuch einen anderen Namen.' : (isAdmin ? 'Füge das erste mit „+ Event hinzufügen“ hinzu.' : 'Schau bald wieder vorbei.');
+      e.children[2].textContent = q ? 'Versuch einen anderen Namen.' : 'Trag oben mit „+ Event eintragen“ das erste ein.';
       list.appendChild(e);
     }
     up.forEach(e => list.appendChild(mk(e)));
@@ -2121,10 +2125,12 @@ function renderEvents() {
 $('event-search').addEventListener('input', renderEvents);
 $('event-add').addEventListener('click', () => {
   site.events = site.events || [];
+  const who = isAdmin ? '' : (prompt('Dein Minecraft-Name (damit man sieht, von wem das Event ist):') || '').trim();
+  if (!isAdmin && !who) return;
   const t = new Date(); t.setDate(t.getDate() + 1);
   const iso = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
-  site.events.push({ id: 'e' + Date.now().toString(36), title: 'Neues Event', date: iso, time: '18:00', host: '', desc: '' });
-  $('event-search').value = ''; renderEvents(); saveLocal(); pushLive();
+  site.events.push({ id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), title: 'Neues Event', date: iso, time: '18:00', host: who, desc: '', by: voterId, byName: who || 'Admin' });
+  $('event-search').value = ''; renderEvents(); saveLocal(); pushLiveSoon();
 });
 
 // ================= Abstimmung =================

@@ -262,6 +262,7 @@
   <span class="text-[11px] font-bold uppercase tracking-widest text-amber-400 mr-1">Admin</span>
   <span id="bar-status" class="text-[11px] font-semibold text-stone-400 whitespace-nowrap mr-1">–</span>
   <button id="bar-save" class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-600 hover:bg-emerald-500 text-white">Als Seite speichern</button>
+  <button id="bar-backup" class="px-3 py-1 text-xs font-semibold rounded-full bg-stone-700 hover:bg-stone-600 text-white">Backup laden</button>
   <button id="bar-logout" class="px-3 py-1 text-xs font-semibold rounded-full bg-stone-700 hover:bg-stone-600 text-white">Abmelden</button>
 </div>
 
@@ -1247,6 +1248,13 @@ async function savePage() {
 }
 document.getElementById('btn-save-page').addEventListener('click', savePage);
 document.getElementById('bar-save').addEventListener('click', savePage);
+document.getElementById('bar-backup').addEventListener('click', () => {
+  const fi = document.createElement('input');
+  fi.type = 'file'; fi.accept = 'application/json,.json';
+  fi.addEventListener('change', () => { if (fi.files[0]) restoreBackup(fi.files[0]); });
+  // Kurz erklaeren: Klick laedt runter, Umschalt+Klick spielt ein Backup ein
+  if (window.event && window.event.shiftKey) fi.click(); else downloadBackup();
+});
 document.getElementById('bar-logout').addEventListener('click', () => setAdmin(false));
 document.getElementById('footer-admin').addEventListener('click', () => openLogin());
 
@@ -1264,20 +1272,21 @@ const liveRef = () => dbUrl() + '/site';
 // In den Regeln steht dafür:  "site": { ".read": true, ".write": true }
 function mergeLive(d) {
   if (!d || typeof d !== 'object') return;
-  liveSnap = d;
+  const dbRev = (typeof d.rev === 'number') ? d.rev : 0;
+  const dbHasClaims = Array.isArray(d.claims) && d.claims.length > 0;
+  // Gezaehlt wird, was der Nutzer seit dem Laden selbst geaendert hat
+  const busy = pendingFields.size > 0 || (Date.now() - lastLocalEdit < 6000);
+  // Die Datenbank gewinnt nur, wenn sie neuer ist als das, was wir zuletzt von ihr kennen
+  const dbNewer = dbRev > (liveSnap.rev || 0);
   const pick = o => { const r = {}; LIVE_FIELDS.forEach(k => { if (k in o) r[k] = o[k]; }); return r; };
-  const base = pick(site), incoming = pick(d);
-  const cur = JSON.stringify(base);
-  // Datenbank-Stand nur uebernehmen, wenn er neuer ist als der eigene und gerade nichts offen ist
-  const dbNewer = (typeof d.rev === 'number') && (d.rev > (liveSnap.rev || 0) || !lastPushOk);
-  const busy = pendingFields.size > 0 || (Date.now() - lastLocalEdit < 4000);
-  if (cur !== JSON.stringify(incoming) && dbNewer && !busy) Object.assign(site, incoming);
-  if (Array.isArray(d.claims) && d.claims.length && dbNewer && !busy) {
-    const a = JSON.stringify(state.claims), b = JSON.stringify(d.claims);
-    if (a !== b) state.claims = d.claims;
+  const incoming = pick(d);
+  if (dbNewer && !busy && JSON.stringify(pick(site)) !== JSON.stringify(incoming)) Object.assign(site, incoming);
+  if (dbHasClaims && dbNewer && !busy) {
+    if (JSON.stringify(state.claims) !== JSON.stringify(d.claims)) state.claims = d.claims;
   }
   if (typeof d.voteDb === 'string' && d.voteDb && !site.voteDb) site.voteDb = d.voteDb;
-  if (typeof d.rev === 'number') liveRev = d.rev;
+  if (dbRev) liveSnap = Object.assign({}, d, { rev: dbRev });
+  else liveSnap = d;
   liveReady = true; liveLoaded = true;
 }
 function applyLiveLayout(d) { mergeLive(d); renderLiveViews(); }
@@ -1314,7 +1323,7 @@ async function loadLive() {
       // 3. alles, was lokal neuer ist, hochschieben
       await syncLocalUp();
       const r2 = await fetch(liveRef() + '.json', { cache: 'no-store' });
-      if (r2.ok) mergeLive(await r2.json());
+      if (r2.ok) { const d2 = await r2.json(); liveSnap = {}; mergeLive(d2); }
     } else {
       mergeLive(d);
     }
@@ -1346,6 +1355,33 @@ async function pushLive(fields) {
     const msg = 'Speichern in der Datenbank hat nicht geklappt – bitte die Regeln (Rules) prüfen.';
     if (typeof toast === 'function') toast(msg); else if (typeof alert === 'function') alert(msg);
   }
+}
+// ---------- Backup / Wiederherstellen ----------
+function downloadBackup() {
+  const data = { claims: state.claims, site: site, savedAt: new Date().toISOString(), version: 2 };
+  const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const d = new Date();
+  a.download = 'craftcore4-backup-' + d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + '-' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0') + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function restoreBackup(file) {
+  const rd = new FileReader();
+  rd.onload = async () => {
+    try {
+      const d = JSON.parse(rd.result);
+      if (!d || !Array.isArray(d.claims)) throw new Error('kein Backup');
+      if (!confirm('Backup mit ' + d.claims.length + ' Gebieten einspielen? Der aktuelle Stand wird ueberschrieben.')) return;
+      state.claims = d.claims;
+      if (d.site) Object.assign(site, d.site);
+      renderLiveViews();
+      saveLocal();
+      await pushLive(['claims', 'pois', 'shops', 'polls', 'events', 'players']);
+      alert('Backup eingespielt und in die Datenbank geschrieben.');
+    } catch (e) { alert('Datei konnte nicht gelesen werden.'); }
+  };
+  rd.readAsText(file);
 }
 // Status in der Admin-Leiste: zeigt, ob und wann zuletzt in die Datenbank geschrieben wurde
 let lastPushOk = 0, lastPushErr = '';

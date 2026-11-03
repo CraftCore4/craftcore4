@@ -1133,7 +1133,7 @@
                 state.activeClaimId = null;
                 state.activeTransformId = null;
                 updateActiveClaimEditor();
-                render(); pushLiveSoon();
+                render(); pushLiveSoon(['claims']);
             });
 
             // Zone hinzufügen (in der Mitte der aktuellen Ansicht)
@@ -1148,7 +1148,7 @@
                 state.activeClaimId = id;
                 state.activeTransformId = id;
                 updateActiveClaimEditor();
-                render(); pushLiveSoon();
+                render(); pushLiveSoon(['claims']);
             });
 
             // Export als JSON
@@ -1303,18 +1303,23 @@ async function loadLive() {
     if (!firstLoadDone) { firstLoadDone = true; syncLocalUp(); }
   } catch (e) { /* Datenbank (noch) nicht erreichbar: Seite läuft mit den eingebauten Daten weiter */ }
 }
-async function pushLive() {
+// Schreibt nur die Teile, die sich geändert haben (sonst überschreibt ein Gerät das andere)
+async function pushLive(fields) {
   const base = dbUrl();
   if (!base) return;
-  const payload = {
-    pois: site.pois || [], shops: site.shops || [], polls: site.polls || [],
-    events: site.events || [], players: site.players || null,
-    claims: state.claims || [], voteDb: site.voteDb || '',
-    rev: Date.now(), updated: Date.now()
+  const all = {
+    pois: () => site.pois || [], shops: () => site.shops || [], polls: () => site.polls || [],
+    events: () => site.events || [], players: () => site.players || null,
+    claims: () => state.claims || [], voteDb: () => site.voteDb || ''
   };
+  const keys = (fields && fields.length) ? fields : Object.keys(all);
+  const payload = {};
+  keys.forEach(k => { if (all[k]) payload[k] = all[k](); });
+  payload.rev = Date.now(); payload.updated = Date.now();
   try {
     const r = await fetch(liveRef() + '.json', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     if (!r.ok) throw new Error('write');
+    keys.forEach(k => { if (k in payload) liveSnap[k] = payload[k]; });
     localEdits = 0;
   } catch (e) {
     liveReady = false;
@@ -1329,10 +1334,12 @@ async function syncLocalUp() {
   const dbc = JSON.stringify({ p: liveSnap.pois || [], s: liveSnap.shops || [], o: liveSnap.polls || [], e: liveSnap.events || [] });
   if (cur !== dbc) await pushLive();
 }
-function pushLiveSoon() {
+let pendingFields = new Set();
+function pushLiveSoon(fields) {
   lastLocalEdit = Date.now(); localEdits++;
+  (fields || ['pois', 'shops', 'polls', 'events', 'players', 'claims']).forEach(f => pendingFields.add(f));
   clearTimeout(pushTimer);
-  pushTimer = setTimeout(pushLive, 700);
+  pushTimer = setTimeout(() => { const f = [...pendingFields]; pendingFields.clear(); pushLive(f); }, 700);
 }
 function startLive() {
   if (liveTimer || !dbUrl()) return;
@@ -1623,6 +1630,7 @@ window.addEventListener('mouseup', () => {
   if (!poiDrag) return;
   const d = poiDrag; poiDrag = null;
   if (!d.moved) openPoi(d.id);
+  else { saveLocal(); pushLiveSoon(['pois']); }
 });
 document.getElementById('btn-add-poi').addEventListener('click', () => {
   const r = mapContainer.getBoundingClientRect();
@@ -1663,7 +1671,7 @@ function renderPoiModal() {
     const del = body.querySelector('[data-a="del"]');
     if (del) del.addEventListener('click', () => {
       if (!confirm('Diesen Ort wirklich löschen?')) return;
-      site.pois = site.pois.filter(q => q.id !== p.id); poiOpenId = null; renderPois(); renderPoiModal(); saveLocal(); pushLiveSoon();
+      site.pois = site.pois.filter(q => q.id !== p.id); poiOpenId = null; renderPois(); renderPoiModal(); saveLocal(); pushLiveSoon(['pois']);
     });
   } else {
     const c = el('div', 'rounded-lg bg-stone-950 border border-stone-700 p-3');
@@ -1891,7 +1899,7 @@ function renderShopTeaser() {
 }
 $('shop-add').addEventListener('click', () => {
   site.shops.unshift({ id: 's' + Date.now().toString(36), name: 'Neuer Shop', owner: '', sells: '', images: [] });
-  $('shop-search').value = ''; renderShopList(); saveLocal(); pushLive();
+  $('shop-search').value = ''; renderShopList(); saveLocal(); pushLiveSoon(['shops']);
 });
 function renderShopList() {
   const box = $('shop-list'); box.innerHTML = '';
@@ -1919,7 +1927,7 @@ function shopCard(s) {
     const del = mkBtn('Shop löschen', 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
     del.addEventListener('click', () => {
       if (!confirm('Diesen Shop wirklich löschen?')) return;
-      site.shops = site.shops.filter(x => x.id !== s.id); renderShopList(); saveLocal(); pushLive();
+      site.shops = site.shops.filter(x => x.id !== s.id); renderShopList(); saveLocal(); pushLiveSoon(['shops']);
     });
     card.appendChild(del);
   } else {
@@ -1969,7 +1977,7 @@ function renderPlayers() {
     c.append(im, nm, playerDots(n));
     if (isAdmin) {
       const x = el('button', 'pl-del', '<i class="fa-solid fa-xmark"></i>'); x.type = 'button'; x.title = 'Teilnehmer entfernen';
-      x.addEventListener('click', ev => { ev.stopPropagation(); if (!confirm(n + ' aus der Teilnehmerliste entfernen?')) return; site.players = ownPlayers().filter(m => normN(m) !== normN(n)); renderPlayers(); saveLocal(); pushLiveSoon(); });
+      x.addEventListener('click', ev => { ev.stopPropagation(); if (!confirm(n + ' aus der Teilnehmerliste entfernen?')) return; site.players = ownPlayers().filter(m => normN(m) !== normN(n)); renderPlayers(); saveLocal(); pushLiveSoon(['players']); });
       c.appendChild(x);
     }
     c.addEventListener('click', () => { plOpen = n; renderPlayerModal(); });
@@ -2045,7 +2053,7 @@ function addPlayers() {
   if (!names.length) return;
   const list = ownPlayers();
   names.forEach(n => { if (!/^[A-Za-z0-9_. ]{1,32}$/.test(n)) return; if (!list.some(x => normN(x) === normN(n))) list.push(n); });
-  inp.value = ''; renderPlayers(); saveLocal(); pushLiveSoon();
+  inp.value = ''; renderPlayers(); saveLocal(); pushLiveSoon(['players']);
 }
 $('player-add-btn').addEventListener('click', addPlayers);
 $('player-add-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addPlayers(); } });
@@ -2093,12 +2101,12 @@ function eventCardEdit(e) {
     '<div><label class="text-[10px] text-stone-400">Uhrzeit</label><input data-f="time" type="time" class="' + INP + '" value="' + esc(e.time) + '"></div></div>' +
     '<input data-f="host" class="' + INP + '" placeholder="Host (Ingame-Name, mehrere mit Komma)" value="' + esc(e.host) + '">' +
     '<textarea data-f="desc" rows="3" class="' + INP + '" placeholder="Was für ein Event ist das? Regeln, Preise, Treffpunkt …">' + esc(e.desc) + '</textarea>';
-  bindFields(card, e, f => { if (f === 'date' || f === 'time') return; saveLocal(); pushLiveSoon(); });
-  card.querySelectorAll('input[type=date],input[type=time]').forEach(i => i.addEventListener('change', () => { saveLocal(); renderEvents(); pushLiveSoon(); }));
+  bindFields(card, e, f => { if (f === 'date' || f === 'time') return; saveLocal(); pushLiveSoon(['events']); });
+  card.querySelectorAll('input[type=date],input[type=time]').forEach(i => i.addEventListener('change', () => { saveLocal(); renderEvents(); pushLiveSoon(['events']); }));
   card.querySelectorAll('[data-f]').forEach(i => i.addEventListener('input', saveLocal));
   if (isAdmin || e.by === voterId) {
     const del = mkBtn('Event löschen', 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
-    del.addEventListener('click', () => { if (!confirm('Dieses Event wirklich löschen?')) return; site.events = site.events.filter(x => x.id !== e.id); renderEvents(); saveLocal(); pushLiveSoon(); });
+    del.addEventListener('click', () => { if (!confirm('Dieses Event wirklich löschen?')) return; site.events = site.events.filter(x => x.id !== e.id); renderEvents(); saveLocal(); pushLiveSoon(['events']); });
     card.appendChild(del);
   }
   const own = el('div', 'text-[10px] text-stone-500', 'Von ' + (e.byName ? esc(e.byName) : 'einem Spieler') + ' eingetragen');
@@ -2140,7 +2148,7 @@ $('event-add').addEventListener('click', () => {
   const t = new Date(); t.setDate(t.getDate() + 1);
   const iso = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
   site.events.push({ id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), title: 'Neues Event', date: iso, time: '18:00', host: who, desc: '', by: voterId, byName: who || 'Admin' });
-  $('event-search').value = ''; renderEvents(); saveLocal(); pushLiveSoon();
+  $('event-search').value = ''; renderEvents(); saveLocal(); pushLiveSoon(['events']);
 });
 
 // ================= Abstimmung =================
@@ -2350,7 +2358,7 @@ function renderVotes() {
 }
 $('vote-new').addEventListener('click', () => {
   site.polls.push({ id: 'p' + Date.now().toString(36), title: 'Bestes Gebäude der Woche', reward: '', start: new Date().toISOString(), days: 7, candidates: [] });
-  renderVotes(); saveLocal(); pushLive();
+  renderVotes(); saveLocal(); pushLiveSoon(['polls']);
 });
 setInterval(() => {
   document.querySelectorAll('#vote-view [data-left]').forEach(n => { const p = currentPoll(); if (p) n.textContent = leftText(p); });

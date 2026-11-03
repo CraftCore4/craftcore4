@@ -1258,12 +1258,14 @@ document.getElementById('footer-admin').addEventListener('click', () => openLogi
 const STORAGE_BUCKET = 'craftcore4-5733d.firebasestorage.app'; // ggf. anpassen: <projekt>.appspot.com
 const LIVE_FIELDS = ['pois', 'shops', 'polls', 'events', 'players'];
 let liveReady = false, liveLoaded = false, liveTimer = null, pushTimer = null;
+let liveSnap = {}, firstLoadDone = false;
 let localEdits = 0, liveRev = 0, lastLocalEdit = 0;
 const liveRef = () => dbUrl() + '/site';
 // Kein Token: Schreibrecht kommt über den Admin-Login auf der Seite.
 // In den Regeln steht dafür:  "site": { ".read": true, ".write": true }
 function mergeLive(d) {
   if (!d || typeof d !== 'object') return;
+  liveSnap = d;
   const pick = o => { const r = {}; LIVE_FIELDS.forEach(k => { if (k in o) r[k] = o[k]; }); return r; };
   const base = pick(site), incoming = pick(d);
   const cur = JSON.stringify(base);
@@ -1298,11 +1300,12 @@ async function loadLive() {
     if (!r.ok) throw new Error('read');
     mergeLive(await r.json());
     renderLiveViews();
+    if (!firstLoadDone) { firstLoadDone = true; syncLocalUp(); }
   } catch (e) { /* Datenbank (noch) nicht erreichbar: Seite läuft mit den eingebauten Daten weiter */ }
 }
-async function pushLive(force) {
+async function pushLive() {
   const base = dbUrl();
-  if (!base || (!isAdmin && !force)) return;
+  if (!base) return;
   const payload = {
     pois: site.pois || [], shops: site.shops || [], polls: site.polls || [],
     events: site.events || [], players: site.players || null,
@@ -1318,6 +1321,13 @@ async function pushLive(force) {
     const msg = 'Speichern in der Datenbank hat nicht geklappt – bitte die Regeln (Rules) prüfen.';
     if (typeof toast === 'function') toast(msg); else if (typeof alert === 'function') alert(msg);
   }
+}
+// Nach dem Laden: eigenen lokalen Stand nachschieben, falls er in der DB fehlt
+async function syncLocalUp() {
+  if (!dbUrl()) return;
+  const cur = JSON.stringify({ p: site.pois || [], s: site.shops || [], o: site.polls || [], e: site.events || [] });
+  const dbc = JSON.stringify({ p: liveSnap.pois || [], s: liveSnap.shops || [], o: liveSnap.polls || [], e: liveSnap.events || [] });
+  if (cur !== dbc) await pushLive();
 }
 function pushLiveSoon() {
   lastLocalEdit = Date.now(); localEdits++;

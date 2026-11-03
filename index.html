@@ -1133,7 +1133,7 @@
                 state.activeClaimId = null;
                 state.activeTransformId = null;
                 updateActiveClaimEditor();
-                render();
+                render(); pushLiveSoon();
             });
 
             // Zone hinzufügen (in der Mitte der aktuellen Ansicht)
@@ -1148,7 +1148,7 @@
                 state.activeClaimId = id;
                 state.activeTransformId = id;
                 updateActiveClaimEditor();
-                render();
+                render(); pushLiveSoon();
             });
 
             // Export als JSON
@@ -1219,8 +1219,11 @@ document.getElementById('btn-reset-local').addEventListener('click', () => {
   location.reload();
 });
 
-// Speichert den aktuellen Stand als fertige index.html zum Hochladen
+// Speichert den aktuellen Stand als fertige index.html zum Hochladen.
+// Shops, Events, Abstimmungen und Orte stehen inzwischen in der Datenbank –
+// die Seite selbst muss deshalb nur noch bei neuen Gebieten / Teilnehmern neu hochgeladen werden.
 async function savePage() {
+  if (dbUrl()) await pushLive();
   try {
     const src = await (await fetch(location.href.split('#')[0], { cache: 'no-store' })).text();
     const list = state.claims;
@@ -1247,6 +1250,118 @@ document.getElementById('btn-save-page').addEventListener('click', savePage);
 document.getElementById('bar-save').addEventListener('click', savePage);
 document.getElementById('bar-logout').addEventListener('click', () => setAdmin(false));
 document.getElementById('footer-admin').addEventListener('click', () => openLogin());
+
+// ================= Live-Daten aus der Datenbank =================
+// Shops, Events, Abstimmungen, Orte und Gebiete liegen in der Datenbank und werden
+// bei jeder Änderung sofort für alle sichtbar. Die index.html muss dafür NICHT neu hochgeladen werden.
+// Hochgeladene Bilder gehen als Datei in Firebase Storage, damit die Datenbank klein bleibt.
+const STORAGE_BUCKET = 'craftcore4-5733d.firebasestorage.app'; // ggf. anpassen: <projekt>.appspot.com
+const LIVE_FIELDS = ['pois', 'shops', 'polls', 'events', 'players'];
+let liveReady = false, liveLoaded = false, liveTimer = null, pushTimer = null;
+let localEdits = 0, liveRev = 0, lastLocalEdit = 0;
+const liveRef = () => dbUrl() + '/site';
+// Zufälliger Token im localStorage = Schreibrecht (gleiches Muster wie beim Abstimmen)
+const writeToken = (() => {
+  try {
+    let t = localStorage.getItem('cc4_wt');
+    if (!t) { t = Array.from(crypto.getRandomValues(new Uint8Array(16))).map(b => b.toString(16).padStart(2, '0')).join(''); localStorage.setItem('cc4_wt', t); }
+    return t;
+  } catch (e) { return 'anon' + Math.random().toString(36).slice(2, 18); }
+})();
+function mergeLive(d) {
+  if (!d || typeof d !== 'object') return;
+  const pick = o => { const r = {}; LIVE_FIELDS.forEach(k => { if (k in o) r[k] = o[k]; }); return r; };
+  const base = pick(site), incoming = pick(d);
+  const cur = JSON.stringify(base);
+  // eigener, noch nicht hochgeladener Stand gewinnt (max. 10 s), danach gewinnt die Datenbank
+  if (cur !== JSON.stringify(incoming) && !(localEdits > 0 && Date.now() - lastLocalEdit < 10000)) {
+    Object.assign(site, incoming);
+  }
+  if (Array.isArray(d.claims) && d.claims.length && !(localEdits > 0 && Date.now() - lastLocalEdit < 10000)) {
+    const a = JSON.stringify(state.claims), b = JSON.stringify(d.claims);
+    if (a !== b) state.claims = d.claims;
+  }
+  if (typeof d.voteDb === 'string' && d.voteDb && !site.voteDb) site.voteDb = d.voteDb;
+  if (typeof d.rev === 'number') liveRev = d.rev;
+  liveReady = true; liveLoaded = true;
+}
+function applyLiveLayout(d) { mergeLive(d); renderLiveViews(); }
+function renderLiveViews() {
+  if (typeof renderPois === 'function') renderPois();
+  if (typeof renderVotes === 'function') renderVotes();
+  if (typeof renderShopModal === 'function') renderShopModal();
+  if (typeof renderPoiModal === 'function') renderPoiModal();
+  if (typeof renderEvents === 'function') renderEvents();
+  if (typeof renderPlayers === 'function') renderPlayers();
+  if (typeof renderInfoCard === 'function') renderInfoCard();
+  if (started) render();
+}
+async function loadLive() {
+  const base = dbUrl();
+  if (!base) return;
+  try {
+    const r = await fetch(liveRef() + '.json', { cache: 'no-store' });
+    if (!r.ok) throw new Error('read');
+    mergeLive(await r.json());
+    renderLiveViews();
+  } catch (e) { /* Datenbank (noch) nicht erreichbar: Seite läuft mit den eingebauten Daten weiter */ }
+}
+async function pushLive() {
+  const base = dbUrl();
+  if (!base || !isAdmin) return;
+  const payload = {
+    pois: site.pois || [], shops: site.shops || [], polls: site.polls || [],
+    events: site.events || [], players: site.players || null,
+    claims: state.claims || [], voteDb: site.voteDb || '',
+    wt: writeToken, rev: Date.now(), updated: Date.now()
+  };
+  try {
+    const r = await fetch(liveRef() + '.json', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (!r.ok) throw new Error('write');
+    localEdits = 0;
+  } catch (e) {
+    liveReady = false;
+    if (typeof toast === 'function') toast('Speichern in der Datenbank hat nicht geklappt – Rechte (Rules) prüfen.');
+  }
+}
+function pushLiveSoon() {
+  lastLocalEdit = Date.now(); localEdits++;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pushLive, 700);
+}
+function startLive() {
+  if (liveTimer || !dbUrl()) return;
+  liveTimer = setInterval(loadLive, 20000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) loadLive(); });
+}
+window.addEventListener('storage', e => { if (e.key === 'cc4_admin_on' && e.newValue === '1') { isAdmin = true; document.body.classList.add('is-admin'); } });
+document.addEventListener('DOMContentLoaded', () => { loadLive(); startLive(); });
+setTimeout(() => { loadLive(); startLive(); }, 0);
+
+// Bild hochladen: Firebase Storage, sonst als DataURL in der Datenbank
+async function uploadImage(file) {
+  const path = 'craftcore4/' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8) + '.jpg';
+  try {
+    const r = await fetch('https://firebasestorage.googleapis.com/v0/b/' + STORAGE_BUCKET + '/o?uploadType=media&name=' + encodeURIComponent(path),
+      { method: 'POST', headers: { 'Content-Type': 'image/jpeg' }, body: file });
+    if (!r.ok) throw new Error('upload');
+    const j = await r.json();
+    return 'https://firebasestorage.googleapis.com/v0/b/' + STORAGE_BUCKET + '/o/' + encodeURIComponent(j.name) + '?alt=media';
+  } catch (e) { return await fileToDataUrl(file); }
+}
+const shrinkImage = file => new Promise((resolve, reject) => {
+  const img = new Image(), url = URL.createObjectURL(file);
+  img.onload = () => {
+    const s = Math.min(1, 1600 / Math.max(img.width, img.height));
+    const cv = document.createElement('canvas');
+    cv.width = Math.round(img.width * s); cv.height = Math.round(img.height * s);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    URL.revokeObjectURL(url);
+    cv.toBlob(b => resolve(b || file), 'image/jpeg', 0.85);
+  };
+  img.onerror = reject;
+  img.src = url;
+});
 
 // ---- Zoom-Grenze, Info-Karte, Bilder ----
 function minScale() { return (state.fitScale || 0.3) * 0.75; }
@@ -1320,7 +1435,7 @@ function renderEditImages(c) {
     const x = document.createElement('button');
     x.textContent = '×';
     x.className = 'absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-600 text-white text-xs leading-5';
-    x.addEventListener('click', () => { c.images.splice(i, 1); renderEditImages(c); render(); saveLocal(); });
+    x.addEventListener('click', () => { c.images.splice(i, 1); renderEditImages(c); render(); saveLocal(); pushLiveSoon(); });
     w.append(im, x);
     box.appendChild(w);
   });
@@ -1347,28 +1462,29 @@ imgFile.addEventListener('change', async () => {
   const c = getActiveClaim();
   if (!c) return;
   for (const f of imgFile.files) {
-    try { (c.images = c.images || []).push(await fileToDataUrl(f)); } catch (e) {}
+    try { (c.images = c.images || []).push(await uploadImage(await shrinkImage(f))); } catch (e) {}
   }
   imgFile.value = '';
-  renderEditImages(c); render(); saveLocal();
+  renderEditImages(c); render(); saveLocal(); pushLiveSoon();
 });
 document.getElementById('btn-img-url').addEventListener('click', () => {
   const c = getActiveClaim();
   const u = c && prompt('Bild-Link (https://…):');
   if (!u || !/^https?:\/\//i.test(u.trim())) return;
   (c.images = c.images || []).push(u.trim());
-  renderEditImages(c); render(); saveLocal();
+  renderEditImages(c); render(); saveLocal(); pushLiveSoon();
 });
 let ignTimer;
 document.getElementById('edit-claim-ign').addEventListener('input', (e) => {
   const c = getActiveClaim(); if (!c) return;
   c.ign = e.target.value;
+  pushLiveSoon();
   clearTimeout(ignTimer); ignTimer = setTimeout(render, 500);
 });
 document.getElementById('edit-claim-info').addEventListener('input', (e) => {
   const c = getActiveClaim(); if (!c) return;
   c.info = e.target.value;
-  render();
+  render(); pushLiveSoon();
 });
 
 // ================= Hilfsfunktionen =================
@@ -1409,7 +1525,7 @@ function imageEditor(arr, onChange) {
   const ln = mkBtn('<i class="fa-solid fa-link mr-1"></i>Link');
   const fi = el('input'); fi.type = 'file'; fi.accept = 'image/*'; fi.multiple = true; fi.style.display = 'none';
   const grid = el('div', 'grid grid-cols-4 gap-2');
-  const done = () => { draw(); onChange && onChange(); saveLocal(); };
+  const done = () => { draw(); onChange && onChange(); saveLocal(); pushLiveSoon(); };
   function draw() {
     grid.innerHTML = '';
     arr.forEach((src, i) => {
@@ -1423,12 +1539,12 @@ function imageEditor(arr, onChange) {
   }
   up.addEventListener('click', () => fi.click());
   fi.addEventListener('change', async () => {
-    for (const f of fi.files) { try { arr.push(await fileToDataUrl(f)); } catch (e) {} }
-    fi.value = ''; done();
+    for (const f of fi.files) { try { arr.push(await uploadImage(await shrinkImage(f))); } catch (e) {} }
+    fi.value = ''; done(); pushLiveSoon();
   });
   ln.addEventListener('click', () => {
     const u = prompt('Bild-Link (https://…):');
-    if (u && /^https?:\/\//i.test(u.trim())) { arr.push(u.trim()); done(); }
+    if (u && /^https?:\/\//i.test(u.trim())) { arr.push(u.trim()); done(); pushLiveSoon(); }
   });
   bar.append(up, ln); wrap.append(bar, fi, grid); draw();
   return wrap;
@@ -1436,6 +1552,7 @@ function imageEditor(arr, onChange) {
 function bindFields(root, obj, afterChange) {
   root.querySelectorAll('[data-f]').forEach(inp => inp.addEventListener('input', () => {
     obj[inp.dataset.f] = inp.type === 'number' ? Number(inp.value) : inp.value;
+    pushLiveSoon();
     afterChange && afterChange(inp.dataset.f);
   }));
 }
@@ -1541,7 +1658,7 @@ function renderPoiModal() {
     const del = body.querySelector('[data-a="del"]');
     if (del) del.addEventListener('click', () => {
       if (!confirm('Diesen Ort wirklich löschen?')) return;
-      site.pois = site.pois.filter(q => q.id !== p.id); poiOpenId = null; renderPois(); renderPoiModal(); saveLocal();
+      site.pois = site.pois.filter(q => q.id !== p.id); poiOpenId = null; renderPois(); renderPoiModal(); saveLocal(); pushLiveSoon();
     });
   } else {
     const c = el('div', 'rounded-lg bg-stone-950 border border-stone-700 p-3');
@@ -1769,7 +1886,7 @@ function renderShopTeaser() {
 }
 $('shop-add').addEventListener('click', () => {
   site.shops.unshift({ id: 's' + Date.now().toString(36), name: 'Neuer Shop', owner: '', sells: '', images: [] });
-  $('shop-search').value = ''; renderShopList(); saveLocal();
+  $('shop-search').value = ''; renderShopList(); saveLocal(); pushLive();
 });
 function renderShopList() {
   const box = $('shop-list'); box.innerHTML = '';
@@ -1797,7 +1914,7 @@ function shopCard(s) {
     const del = mkBtn('Shop löschen', 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
     del.addEventListener('click', () => {
       if (!confirm('Diesen Shop wirklich löschen?')) return;
-      site.shops = site.shops.filter(x => x.id !== s.id); renderShopList(); saveLocal();
+      site.shops = site.shops.filter(x => x.id !== s.id); renderShopList(); saveLocal(); pushLive();
     });
     card.appendChild(del);
   } else {
@@ -1847,7 +1964,7 @@ function renderPlayers() {
     c.append(im, nm, playerDots(n));
     if (isAdmin) {
       const x = el('button', 'pl-del', '<i class="fa-solid fa-xmark"></i>'); x.type = 'button'; x.title = 'Teilnehmer entfernen';
-      x.addEventListener('click', ev => { ev.stopPropagation(); if (!confirm(n + ' aus der Teilnehmerliste entfernen?')) return; site.players = ownPlayers().filter(m => normN(m) !== normN(n)); renderPlayers(); saveLocal(); });
+      x.addEventListener('click', ev => { ev.stopPropagation(); if (!confirm(n + ' aus der Teilnehmerliste entfernen?')) return; site.players = ownPlayers().filter(m => normN(m) !== normN(n)); renderPlayers(); saveLocal(); pushLiveSoon(); });
       c.appendChild(x);
     }
     c.addEventListener('click', () => { plOpen = n; renderPlayerModal(); });
@@ -1923,7 +2040,7 @@ function addPlayers() {
   if (!names.length) return;
   const list = ownPlayers();
   names.forEach(n => { if (!/^[A-Za-z0-9_. ]{1,32}$/.test(n)) return; if (!list.some(x => normN(x) === normN(n))) list.push(n); });
-  inp.value = ''; renderPlayers(); saveLocal();
+  inp.value = ''; renderPlayers(); saveLocal(); pushLiveSoon();
 }
 $('player-add-btn').addEventListener('click', addPlayers);
 $('player-add-input').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addPlayers(); } });
@@ -1971,11 +2088,11 @@ function eventCardEdit(e) {
     '<div><label class="text-[10px] text-stone-400">Uhrzeit</label><input data-f="time" type="time" class="' + INP + '" value="' + esc(e.time) + '"></div></div>' +
     '<input data-f="host" class="' + INP + '" placeholder="Host (Ingame-Name, mehrere mit Komma)" value="' + esc(e.host) + '">' +
     '<textarea data-f="desc" rows="3" class="' + INP + '" placeholder="Was für ein Event ist das? Regeln, Preise, Treffpunkt …">' + esc(e.desc) + '</textarea>';
-  bindFields(card, e, f => { if (f === 'date' || f === 'time') return; saveLocal(); });
-  card.querySelectorAll('input[type=date],input[type=time]').forEach(i => i.addEventListener('change', () => { saveLocal(); renderEvents(); }));
+  bindFields(card, e, f => { if (f === 'date' || f === 'time') return; saveLocal(); pushLiveSoon(); });
+  card.querySelectorAll('input[type=date],input[type=time]').forEach(i => i.addEventListener('change', () => { saveLocal(); renderEvents(); pushLiveSoon(); }));
   card.querySelectorAll('[data-f]').forEach(i => i.addEventListener('input', saveLocal));
   const del = mkBtn('Event löschen', 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
-  del.addEventListener('click', () => { if (!confirm('Dieses Event wirklich löschen?')) return; site.events = site.events.filter(x => x.id !== e.id); renderEvents(); saveLocal(); });
+  del.addEventListener('click', () => { if (!confirm('Dieses Event wirklich löschen?')) return; site.events = site.events.filter(x => x.id !== e.id); renderEvents(); saveLocal(); pushLiveSoon(); });
   card.appendChild(del);
   return card;
 }
@@ -2012,7 +2129,7 @@ $('event-add').addEventListener('click', () => {
   const t = new Date(); t.setDate(t.getDate() + 1);
   const iso = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
   site.events.push({ id: 'e' + Date.now().toString(36), title: 'Neues Event', date: iso, time: '18:00', host: '', desc: '' });
-  $('event-search').value = ''; renderEvents(); saveLocal();
+  $('event-search').value = ''; renderEvents(); saveLocal(); pushLive();
 });
 
 // ================= Abstimmung =================
@@ -2159,15 +2276,15 @@ function pollAdmin(p) {
     c.images = c.images || [];
     r.appendChild(imageEditor(c.images, () => refreshVoteView()));
     const del = mkBtn('Kandidat entfernen', 'self-start px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
-    del.addEventListener('click', () => { p.candidates = p.candidates.filter(x => x.id !== c.id); renderVotes(); saveLocal(); });
+    del.addEventListener('click', () => { p.candidates = p.candidates.filter(x => x.id !== c.id); renderVotes(); saveLocal(); pushLiveSoon(); });
     r.appendChild(del); list.appendChild(r);
   });
   box.appendChild(list);
   const acts = el('div', 'flex flex-wrap gap-2');
   const add = mkBtn('+ Kandidat hinzufügen', 'px-3 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-400 text-black');
-  add.addEventListener('click', () => { p.candidates.push({ id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: '', ign: '', images: [] }); renderVotes(); saveLocal(); });
+  add.addEventListener('click', () => { p.candidates.push({ id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: '', ign: '', images: [] }); renderVotes(); saveLocal(); pushLiveSoon(); });
   const delp = mkBtn('Abstimmung löschen', 'px-3 py-2 text-xs font-semibold rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
-  delp.addEventListener('click', () => { if (confirm('Diese Abstimmung wirklich löschen?')) { site.polls = site.polls.filter(x => x.id !== p.id); renderVotes(); saveLocal(); } });
+  delp.addEventListener('click', () => { if (confirm('Diese Abstimmung wirklich löschen?')) { site.polls = site.polls.filter(x => x.id !== p.id); renderVotes(); saveLocal(); pushLiveSoon(); } });
   acts.append(add, delp); box.appendChild(acts);
   const db = el('div', 'border-t border-white/10 pt-4');
   db.innerHTML = '<label class="text-[10px] text-stone-400">Datenbank-Adresse (Firebase Realtime Database, für die Stimmen aller Besucher)</label><input id="vote-db" class="' + INP + '" placeholder="https://DEINPROJEKT-default-rtdb.europe-west1.firebasedatabase.app" value="' + esc(site.voteDb) + '">';
@@ -2201,7 +2318,7 @@ function renderVoteHistory() {
     row.append(left, win);
     if (isAdmin) {
       const d = mkBtn('Löschen', 'px-2 py-1 text-xs rounded bg-red-600/20 text-red-300 border border-red-500/30');
-      d.addEventListener('click', () => { if (confirm('Diese Abstimmung löschen?')) { site.polls = site.polls.filter(x => x.id !== p.id); renderVotes(); saveLocal(); } });
+      d.addEventListener('click', () => { if (confirm('Diese Abstimmung löschen?')) { site.polls = site.polls.filter(x => x.id !== p.id); renderVotes(); saveLocal(); pushLive(); } });
       row.appendChild(d);
     }
     hist.appendChild(row);
@@ -2222,7 +2339,7 @@ function renderVotes() {
 }
 $('vote-new').addEventListener('click', () => {
   site.polls.push({ id: 'p' + Date.now().toString(36), title: 'Bestes Gebäude der Woche', reward: '', start: new Date().toISOString(), days: 7, candidates: [] });
-  renderVotes(); saveLocal();
+  renderVotes(); saveLocal(); pushLive();
 });
 setInterval(() => {
   document.querySelectorAll('#vote-view [data-left]').forEach(n => { const p = currentPoll(); if (p) n.textContent = leftText(p); });
@@ -2254,7 +2371,8 @@ async function loadStats() {
   if (!base) { renderStatsViews(); return; }
   try {
     const get = async path => { const r = await fetch(base + path + '.json'); if (!r.ok) throw new Error(path); return r.json(); };
-    const [pl, sv, lv] = await Promise.all([get('/players'), get('/server'), get('/live')]);
+    const [pl, sv, lv, lt] = await Promise.all([get('/players'), get('/server'), get('/live'), get('/site/layout')]);
+    applyLiveLayout(lt);
     stats = { players: pl || {}, server: sv, live: lv, fetchedAt: Date.now(), error: false, loaded: true };
   } catch (e) { stats.error = true; }
   renderStatsViews();
@@ -2434,12 +2552,12 @@ window.addEventListener('load', updateNavPill);
 // Namen-Größe
 $('edit-claim-fs').addEventListener('input', e => {
   const c = getActiveClaim(); if (!c) return;
-  c.fs = +e.target.value; $('val-claim-fs').textContent = c.fs + '%'; render();
+  c.fs = +e.target.value; $('val-claim-fs').textContent = c.fs + '%'; render(); pushLiveSoon();
 });
 
 document.getElementById('btn-label-reset').addEventListener('click', () => {
   const c = getActiveClaim();
-  if (c) { delete c.lo; render(); saveLocal(); }
+  if (c) { delete c.lo; render(); saveLocal(); pushLiveSoon(); }
 });
 
 // ---- Admin-Login ----
@@ -2450,12 +2568,14 @@ const errEl = document.getElementById('admin-error');
 function setAdmin(on) {
   isAdmin = on;
   document.body.classList.toggle('is-admin', on);
-  try { on ? sessionStorage.setItem('cc4_admin', '1') : sessionStorage.removeItem('cc4_admin'); } catch (e) {}
+  try { on ? sessionStorage.setItem('cc4_admin', '1') : sessionStorage.removeItem('cc4_admin'); localStorage.setItem('cc4_admin_on', on ? '1' : '0'); } catch (e) {}
+  if (on) { loadLive(); startLive(); }
   state.activeClaimId = null; state.activeTransformId = null; state.transformAction = null;
   if (on) applyLocal(); else applyData(JSON.parse(baseline));
   updateActiveClaimEditor();
   renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents(); renderPlayers();
   if (started) render();
+  if (on) pushLive();
 }
 function openLogin() { codeInput.value = ''; errEl.style.display = 'none'; modalEl.style.display = 'flex'; setTimeout(() => codeInput.focus(), 0); }
 function closeLogin() { modalEl.style.display = 'none'; }
@@ -2471,7 +2591,7 @@ codeInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') tryLogin();
   if (e.key === 'Escape') closeLogin();
 });
-try { if (sessionStorage.getItem('cc4_admin') === '1') { isAdmin = true; document.body.classList.add('is-admin'); } } catch (e) {}
+try { if (sessionStorage.getItem('cc4_admin') === '1' || localStorage.getItem('cc4_admin_on') === '1') { isAdmin = true; document.body.classList.add('is-admin'); } } catch (e) {}
 
 applyLocal();
 renderPois();
@@ -2479,6 +2599,8 @@ renderVotes();
 renderShopModal();
 renderEvents();
 renderPlayers();
+loadLive();
+startLive();
 document.getElementById('logo-small').src = document.getElementById('logo-big').src;
 document.getElementById('logo-shop').src = document.getElementById('logo-big').src;
 document.getElementById('logo-events').src = document.getElementById('logo-big').src;

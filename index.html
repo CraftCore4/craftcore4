@@ -169,8 +169,8 @@
 
 <div class="overflow-hidden border-y border-white/10 bg-amber-500 py-3">
   <div class="marquee flex w-max whitespace-nowrap text-sm font-bold uppercase tracking-widest text-black">
-    <span class="px-4">CraftCore 4 ✦ 35 Gebiete ✦ Eine Welt ✦ Interaktive Karte ✦ CraftCore 4 ✦ 35 Gebiete ✦ Eine Welt ✦ Interaktive Karte ✦ </span>
-    <span class="px-4">CraftCore 4 ✦ 35 Gebiete ✦ Eine Welt ✦ Interaktive Karte ✦ CraftCore 4 ✦ 35 Gebiete ✦ Eine Welt ✦ Interaktive Karte ✦ </span>
+    <span class="px-4">CraftCore 4 ✦ 45 Gebiete ✦ Eine Welt ✦ Interaktive Karte ✦ CraftCore 4 ✦ 45 Gebiete ✦ Eine Welt ✦ Interaktive Karte ✦ </span>
+    <span class="px-4">CraftCore 4 ✦ 45 Gebiete ✦ Eine Welt ✦ Interaktive Karte ✦ CraftCore 4 ✦ 45 Gebiete ✦ Eine Welt ✦ Interaktive Karte ✦ </span>
   </div>
 </div>
 
@@ -284,6 +284,7 @@
 
     <header class="h-14 bg-stone-900 border-b border-stone-800 flex items-center justify-between px-4 z-20 shrink-0">
         <div class="flex items-center gap-3"><img id="logo-tool" alt="CraftCore 4" class="h-9 w-auto"><span class="hidden sm:inline text-xs font-bold uppercase tracking-widest text-stone-400 border-l border-stone-700 pl-3">Weltkarte</span></div>
+        <div id="map-status" class="z-20 hidden shrink-0 items-center gap-2 rounded-full bg-black border border-stone-700 px-3 py-1.5 text-[11px] font-semibold text-stone-400 whitespace-nowrap"><span class="w-2 h-2 rounded-full bg-stone-500"></span><span class="txt">–</span></div>
         <button id="zones-toggle" type="button" aria-pressed="false" title="Zonen ein-/ausblenden" class="z-20 flex shrink-0 items-center gap-2 rounded-full bg-black border border-amber-500/40 text-white text-sm font-semibold shadow-xl hover:border-amber-400 transition cursor-pointer"><i class="fa-solid fa-eye text-amber-400"></i><span>Zonen</span></button>
         <div id="app-header-btns" class="flex items-center gap-2 overflow-x-auto min-w-0">
             <button id="btn-admin-login" class="viewer-only flex items-center gap-2 px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold rounded-lg border border-stone-700 transition"><i class="fa-solid fa-lock text-stone-400"></i><span>Admin</span></button>
@@ -543,7 +544,7 @@
   </div>
 </div>
 
-<script id="site-data" type="application/json">{"pois": [{"id": "spawn", "type": "spawn", "name": "Spawn", "x": 467, "y": 759, "coords": "-240 140 -550", "info": "", "fixed": true}, {"id": "shopping", "type": "shopping", "name": "Shopping District", "x": 521, "y": 312, "coords": "", "info": "Shops aller Spieler", "fixed": true}], "shops": [{"id": "smvwsllna", "name": "Potion Shop", "owner": "Kenshima20", "sells": "Potions aller Art ", "images": []}], "polls": [], "voteDb": "https://craftcore4-5733d-default-rtdb.europe-west1.firebasedatabase.app"}</script>
+<script id="site-data" type="application/json">{"pois": [{"coords": "-240 140 -550", "fixed": true, "id": "spawn", "info": "", "name": "Spawn", "type": "spawn", "x": 976, "y": 689}, {"coords": "", "fixed": true, "id": "shopping", "info": "Shops aller Spieler", "name": "Shopping District", "type": "shopping", "x": 493, "y": 292}], "shops": [{"id": "smvwsllna", "name": "Potion Shop", "owner": "Kenshima20", "sells": "Potions aller Art ", "images": []}], "polls": [], "voteDb": "https://craftcore4-5733d-default-rtdb.europe-west1.firebasedatabase.app"}</script>
 <script>
 (function(){
   const claims = [
@@ -593,47 +594,51 @@
         const MAP_W = 1827.6, MAP_H = 1443.5, MAP_X0 = -179.5, MAP_Y0 = -51.9;
         const state = {
             claims: [
-                {"id": "1", "name": "_V0ID_MC & Affemitwaffe1510", "color": "#1e40af", "opacity": 0.1, "points": [[274, -3], [582, -6], [579, 165], [254, 169]], "ign": "_V0ID_MC,N1klA4s_daReal,Affemitwaffe1510"},
-                {"id": "2", "name": "Vensar", "color": "#fef08a", "opacity": 0.1, "points": [[821, 40], [950, 42], [908, 140], [793, 129]], "ign": "Senvy", "info": "Eine Große Firma die Bestellungen annimmt wie Amazon"},
-                {"id": "3", "name": "_itzN0tMe_", "color": "#f472b6", "opacity": 0.1, "points": [[1140, 96], [1202, 96], [1216, 286], [1132, 267]], "ign": "_itzN0tMe_"},
-                {"id": "4", "name": "Kenshima20", "color": "#38bdf8", "opacity": 0.1, "points": [[1452, -50], [1636, 7], [1374, 192], [1282, 170], [1281, 95]], "ign": "Kenshima20", "info": "Zelda", "lo": [-60, 62]},
-                {"id": "5", "name": "Dorito512", "color": "#f97316", "opacity": 0.1, "points": [[1209, 155], [1374, 194], [1324, 303], [1218, 287]], "ign": "Dorito512"},
-                {"id": "6", "name": "Senvyn", "color": "#fef08a", "opacity": 0.05, "points": [[597, 197], [813, 212], [788, 323], [698, 311], [657, 300], [644, 273]], "ign": "Senvy"},
-                {"id": "7", "name": "Mondstiefel", "color": "#9ca3af", "opacity": 0.1, "points": [[550, 280], [622, 243], [640, 272], [656, 302], [687, 310], [725, 317], [788, 325], [780, 530], [612, 484], [622, 454], [610, 405]], "ign": "Mondstiefel", "info": "Hobbit/Herr Der Ringe", "lo": [39, 42]},
-                {"id": "8", "name": "cpvptimbo", "color": "#7dd3fc", "opacity": 0.05, "points": [[523, 420], [619, 455], [596, 528], [486, 490]], "ign": "cpvptimbo"},
-                {"id": "9", "name": "cpvpTim ", "color": "#a855f7", "opacity": 0.1, "points": [[612, 487], [780, 531], [747, 660], [580, 587]], "ign": "cpvpTim "},
-                {"id": "10", "name": "03724", "color": "#fb923c", "opacity": 0.05, "points": [[815, 514], [930, 541], [863, 723], [751, 699]], "ign": "03724"},
-                {"id": "11", "name": "Miks934", "color": "#0e30a0", "opacity": 0.15, "points": [[952, 487], [1058, 516], [989, 674], [897, 639]], "ign": "Miks934"},
-                {"id": "12", "name": "EinfachMoritz10", "color": "#ef4444", "opacity": 0.1, "points": [[1141, 334], [1327, 470], [1242, 564], [1040, 432]], "ign": "EinfachMoritz10", "info": "Jungle Tempel"},
-                {"id": "13", "name": "LoppyJu", "color": "#f87171", "opacity": 0.1, "points": [[1244, 566], [1328, 473], [1418, 547], [1284, 604]], "ign": "LoppyJu"},
-                {"id": "14", "name": "StormerRed", "color": "#e5e7eb", "opacity": 0.1, "points": [[1015, 621], [1177, 644], [1097, 799], [1014, 807], [1016, 718], [1018, 698], [992, 675], [999, 658]], "ign": "StromerBlack"},
-                {"id": "15", "name": "Bauschaum3141592 & Ozhvyr", "color": "#a3e635", "opacity": 0.05, "points": [[281, 614], [435, 618], [439, 736], [279, 733]], "ign": "Bauschaum3141592,Ozhvyr", "fs": 70},
-                {"id": "16", "name": "Happy_2012", "color": "#3b82f6", "opacity": 0.1, "points": [[1234, 618], [1500, 621], [1497, 1021], [1236, 1018]], "ign": "Happy_2012,waabby"},
-                {"id": "17", "name": "NPhinkay", "color": "#213759", "opacity": 0.3, "points": [[917, 288], [1043, 220], [1140, 332], [1038, 430]], "ign": "NPhinkay"},
-                {"id": "18", "name": "Lauch1A", "color": "#22c55e", "opacity": 0.1, "points": [[827, 806], [951, 932], [902, 980], [847, 986], [734, 998], [714, 943], [711, 883]], "ign": "Lauch1A"},
-                {"id": "19", "name": "Won2020", "color": "#ffffff", "opacity": 0.1, "points": [[1233, 833], [1233, 868], [1233, 904], [1233, 971], [1233, 1018], [1203, 1018], [1203, 1060], [1203, 1131], [1084, 1131], [1033, 1026]], "ign": "Won2020"},
-                {"id": "20", "name": "X_1_I", "color": "#06b6d4", "opacity": 0.1, "points": [[400, 840], [523, 838], [533, 1022], [375, 1036]], "ign": "X_1_I,Tuff_valley"},
-                {"id": "21", "name": "spezikasten5 & _Frendly", "color": "#94a3b8", "opacity": 0.1, "points": [[288, 376], [435, 379], [452, 170], [83, 173], [92, 263], [236, 261]], "ign": "spezikasten5 ,_Frendly", "lo": [86, 52]},
-                {"id": "22", "name": "MeinSchaf100 & jadenout", "color": "#eab308", "opacity": 0.1, "points": [[736, 1000], [902, 982], [942, 1178], [798, 1179]], "ign": "MeinSchaf100,jadenout", "fs": 90, "lo": [-15, -65]},
-                {"id": "1793399387350", "name": "Raumwolke34 & Kerze6263", "color": "#3b82f6", "opacity": 0.1, "points": [[1178, 644], [1233, 581], [1234, 829], [1100, 799]], "ign": "Raumwolke34,Kerze6263", "lo": [14, 75], "fs": 70},
-                {"id": "1793399566258", "name": "Korbi787", "color": "#f7573b", "opacity": 0.1, "points": [[534, 993], [723, 972], [796, 1179], [546, 1189]], "ign": "Korbi787"},
-                {"id": "1793399680707", "name": "LionZenYT & rainz66", "color": "#ea3bf7", "opacity": 0.05, "points": [[279, 734], [439, 737], [443, 836], [279, 843]], "ign": "LionZenYT,rainz66"},
-                {"id": "1793399874905", "name": "10Tom13", "color": "#64891f", "opacity": 0.1, "points": [[825, 357], [974, 362], [981, 445], [801, 441]], "ign": "10Tom13"},
-                {"id": "1793399946809", "name": "NurNick_Yt", "color": "#800000", "opacity": 0.15, "points": [[290, 379], [349, 380], [370, 380], [392, 381], [435, 382], [447, 451], [460, 482], [483, 493], [521, 505], [596, 529], [561, 644], [439, 640], [437, 615], [279, 611]], "ign": "NurNick_Yt"},
-                {"id": "1793400028098", "name": "Mart_8 & ,Ben18374", "color": "#00ff40", "opacity": 0.05, "points": [[523, 838], [663, 825], [693, 973], [533, 990]], "ign": "Mart_8,Ben18374"},
-                {"id": "1793402051567", "name": "DarthRevan2000", "color": "#7c92b6", "opacity": 0.1, "points": [[822, 162], [1038, 219], [915, 286], [799, 288]], "ign": "DarthRevan2000"},
-                {"id": "1793402181056", "name": "EinLarsYT", "color": "#007cdb", "opacity": 0.1, "points": [[519, 771], [580, 590], [746, 662], [704, 819]], "ign": "EinLarsYT"},
-                {"id": "1793435749248", "name": "CasualCondor8178", "color": "#56b8a8", "opacity": 0.15, "points": [[1197, 0], [1279, -1], [1280, 169], [1209, 153]], "ign": "CasualCondor8178", "lo": [6, -47]},
-                {"id": "1793448286026", "name": "The_Chicken_MC", "color": "#0a12f5", "opacity": 0.05, "points": [[59, 611], [185, 613], [278, 614], [276, 734], [62, 735]], "ign": "The_Chicken_MC"},
-                {"id": "1793448286930", "name": "Sivya", "color": "#aa06cb", "opacity": 0.1, "points": [[211, 1184], [506, 1183], [506, 1326], [209, 1328]], "ign": "Sivya"},
-                {"id": "1793463479033", "name": "TingelPvPTT", "color": "#302b22", "opacity": 0.15, "points": [[1, 1086], [211, 1084], [207, 1326], [-8, 1329]], "ign": "TingelPvPTT"},
-                {"id": "1793463479512", "name": "Wuscheli8", "color": "#37322a", "opacity": 0.15, "points": [[-5, 846], [211, 844], [211, 1081], [-19, 1084]], "ign": "Wuscheli8"},
-                {"id": "1793544622380", "name": "Nichtsodeep & EinfTimo", "color": "#f59e0b", "opacity": 0.1, "points": [[-23, 267], [235, 263], [287, 377], [279, 611], [60, 609], [46, 506], [19, 499], [6, 495], [-9, 492]], "ign": "nichtsodeep,EinfTimo"},
-                {"id": "1793544630940", "name": "ToasterKing123 & m0tv", "color": "#125273", "opacity": 0.1, "points": [[904, 982], [954, 932], [1007, 906], [1066, 990], [1042, 1014], [1031, 1026], [1035, 1036], [1014, 1044], [924, 1076]], "ign": "ToasterKing123,m0tv", "fs": 70, "lo": [-4, 0]},
-                {"id": "1793544636204", "name": "Zyztem_", "color": "#290000", "opacity": 0.15, "points": [[1297, 1107], [1618, 1106], [1610, 1330], [1296, 1328]], "ign": "Zyztem_"},
-                {"id": "1793544638573", "name": "Cookie", "color": "#9f7d41", "opacity": 0.1, "points": [[801, 778], [902, 721], [1015, 700], [1012, 812], [1006, 904], [952, 930]], "fs": 100, "lo": [67, 76]},
-                {"id": "1793551310227", "name": "Serpex_x", "color": "#c81474", "opacity": 0.1, "points": [[1015, 809], [1097, 801], [1231, 831], [1068, 988], [1008, 903]], "ign": "Serpex_x"},
-                {"id": "1793552403140", "name": "Mosawerxwq", "color": "#028843", "opacity": 0.1, "points": [[1062, 514], [1000, 497], [1038, 434], [1162, 514], [1241, 567], [1177, 641], [1015, 618]], "ign": "Mosawerxwq"}
+                {"color": "#1e40af", "id": "1", "ign": "_V0ID_MC,N1klA4s_daReal,Affemitwaffe1510", "name": "_V0ID_MC & Affemitwaffe1510", "opacity": 0.1, "points": [[274, -3], [582, -6], [579, 165], [254, 169]]},
+                {"color": "#fef08a", "id": "2", "ign": "Senvy", "info": "Eine Große Firma die Bestellungen annimmt wie Amazon", "name": "Vensar", "opacity": 0.1, "points": [[821, 40], [950, 42], [908, 140], [793, 129]]},
+                {"color": "#f472b6", "id": "3", "ign": "_itzN0tMe_", "name": "_itzN0tMe_", "opacity": 0.1, "points": [[1140, 96], [1202, 96], [1216, 286], [1132, 267]]},
+                {"color": "#38bdf8", "id": "4", "ign": "Kenshima20", "info": "Zelda", "lo": [-60, 62], "name": "Kenshima20", "opacity": 0.1, "points": [[1452, -50], [1636, 7], [1374, 192], [1282, 170], [1281, 95]]},
+                {"color": "#f97316", "id": "5", "ign": "Dorito512", "name": "Dorito512", "opacity": 0.1, "points": [[1209, 155], [1374, 194], [1324, 303], [1218, 287]]},
+                {"color": "#fef08a", "id": "6", "ign": "Senvy", "name": "Senvyn", "opacity": 0.05, "points": [[597, 197], [819, 163], [788, 323], [698, 311], [657, 300], [644, 273]]},
+                {"color": "#9ca3af", "id": "7", "ign": "Mondstiefel", "info": "Hobbit/Herr Der Ringe", "lo": [39, 42], "name": "Mondstiefel", "opacity": 0.1, "points": [[550, 280], [622, 243], [640, 272], [656, 302], [687, 310], [725, 317], [788, 325], [780, 530], [612, 484], [622, 454], [610, 405]]},
+                {"color": "#7dd3fc", "id": "8", "ign": "cpvptimbo", "name": "cpvptimbo", "opacity": 0.05, "points": [[523, 420], [619, 455], [596, 528], [486, 490]]},
+                {"color": "#a855f7", "id": "9", "ign": "cpvpTim ", "name": "cpvpTim ", "opacity": 0.1, "points": [[612, 487], [780, 531], [747, 660], [580, 587]]},
+                {"color": "#fb923c", "id": "10", "ign": "03724", "name": "03724", "opacity": 0.05, "points": [[815, 514], [930, 541], [863, 723], [751, 699]]},
+                {"color": "#0e30a0", "id": "11", "ign": "Miks934", "name": "Miks934", "opacity": 0.15, "points": [[952, 487], [1058, 516], [989, 674], [897, 639]]},
+                {"color": "#ef4444", "id": "12", "ign": "EinfachMoritz10", "info": "Jungle Tempel", "name": "EinfachMoritz10", "opacity": 0.1, "points": [[1141, 334], [1327, 470], [1242, 564], [1040, 432]]},
+                {"color": "#f87171", "id": "13", "ign": "LoppyJu", "name": "LoppyJu", "opacity": 0.1, "points": [[1244, 566], [1328, 473], [1418, 547], [1284, 604]]},
+                {"color": "#e5e7eb", "id": "14", "ign": "StromerBlack", "name": "StormerRed", "opacity": 0.1, "points": [[1015, 621], [1177, 644], [1097, 799], [1014, 807], [1016, 718], [1018, 698], [992, 675], [999, 658]]},
+                {"color": "#a3e635", "fs": 70, "id": "15", "ign": "Bauschaum3141592,Ozhvyr", "name": "Bauschaum3141592 & Ozhvyr", "opacity": 0.05, "points": [[281, 614], [435, 618], [439, 736], [279, 733]]},
+                {"color": "#3b82f6", "id": "16", "ign": "Happy_2012,waabby", "name": "Happy_2012", "opacity": 0.1, "points": [[1234, 618], [1500, 621], [1497, 1021], [1236, 1018]]},
+                {"color": "#213759", "id": "17", "ign": "NPhinkay", "name": "NPhinkay", "opacity": 0.3, "points": [[917, 288], [1043, 220], [1140, 332], [1038, 430]]},
+                {"color": "#22c55e", "id": "18", "ign": "Lauch1A", "name": "Lauch1A", "opacity": 0.1, "points": [[827, 806], [951, 932], [902, 980], [847, 986], [734, 998], [714, 943], [711, 883]]},
+                {"color": "#ffffff", "id": "19", "ign": "Won2020", "name": "Won2020", "opacity": 0.1, "points": [[1233, 833], [1233, 868], [1233, 904], [1233, 971], [1233, 1018], [1203, 1018], [1203, 1060], [1203, 1131], [1084, 1131], [1033, 1026]]},
+                {"color": "#06b6d4", "id": "20", "ign": "X_1_I,Tuff_valley", "name": "X_1_I", "opacity": 0.1, "points": [[400, 840], [523, 838], [533, 1022], [375, 1036]]},
+                {"color": "#94a3b8", "id": "21", "ign": "spezikasten5 ,_Frendly", "lo": [86, 52], "name": "spezikasten5 & _Frendly", "opacity": 0.1, "points": [[288, 376], [435, 379], [452, 170], [83, 173], [92, 263], [236, 261]]},
+                {"color": "#eab308", "fs": 90, "id": "22", "ign": "MeinSchaf100,jadenout", "lo": [-15, -65], "name": "MeinSchaf100 & jadenout", "opacity": 0.1, "points": [[736, 1000], [902, 982], [942, 1178], [798, 1179]]},
+                {"color": "#3b82f6", "fs": 100, "id": "1793399387350", "ign": "Kerze6263", "lo": [18, 29], "name": " Kerze6263", "opacity": 0.1, "points": [[1178, 644], [1233, 581], [1234, 829], [1100, 799]]},
+                {"color": "#f7573b", "id": "1793399566258", "ign": "Korbi787", "name": "Korbi787", "opacity": 0.1, "points": [[-191, 99], [80, 173], [89, 263], [-26, 264], [-20, 341], [-182, 362]]},
+                {"color": "#ea3bf7", "id": "1793399680707", "ign": "LionZenYT,rainz66", "lo": [-4, -6], "name": "LionZenYT & rainz66", "opacity": 0.05, "points": [[-152, -55], [-139, -68], [-111, -66], [-72, -65], [10, -65], [172, -64], [80, 171], [-54, 135], [-124, 116], [-158, 106], [-178, 100], [-191, 88], [-190, 7], [-188, -69]]},
+                {"color": "#64891f", "id": "1793399874905", "ign": "10Tom13", "name": "10Tom13", "opacity": 0.1, "points": [[825, 357], [974, 362], [981, 445], [801, 441]]},
+                {"color": "#800000", "id": "1793399946809", "ign": "NurNick_Yt", "name": "NurNick_Yt", "opacity": 0.15, "points": [[290, 379], [349, 380], [370, 380], [392, 381], [435, 382], [447, 451], [460, 482], [483, 493], [521, 505], [596, 529], [561, 644], [439, 640], [437, 615], [279, 611]]},
+                {"color": "#00ff40", "id": "1793400028098", "ign": "Mart_8,Ben18374", "name": "Mart_8 & ,Ben18374", "opacity": 0.05, "points": [[523, 838], [663, 825], [693, 973], [533, 990]]},
+                {"color": "#7c92b6", "id": "1793402051567", "ign": "DarthRevan2000", "name": "DarthRevan2000", "opacity": 0.1, "points": [[822, 162], [1038, 219], [915, 286], [798, 286]]},
+                {"color": "#007cdb", "id": "1793402181056", "ign": "EinLarsYT", "name": "EinLarsYT", "opacity": 0.1, "points": [[519, 771], [580, 590], [746, 662], [704, 819]]},
+                {"color": "#56b8a8", "id": "1793435749248", "ign": "CasualCondor8178", "lo": [-33, -65], "name": "CasualCondor8178", "opacity": 0.15, "points": [[1197, -59], [1276, -59], [1352, -55], [1452, -54], [1280, 94], [1284, 93], [1284, 89], [1286, 88], [1279, 99], [1279, 113], [1280, 169], [1209, 153]]},
+                {"color": "#0a12f5", "id": "1793448286026", "ign": "The_Chicken_MC", "name": "The_Chicken_MC", "opacity": 0.05, "points": [[59, 611], [185, 613], [278, 614], [276, 734], [62, 735]]},
+                {"color": "#aa06cb", "id": "1793448286930", "ign": "Sivya", "name": "Sivya", "opacity": 0.1, "points": [[211, 1184], [506, 1183], [506, 1326], [209, 1328]]},
+                {"color": "#302b22", "id": "1793463479033", "ign": "TingelPvPTT", "name": "TingelPvPTT", "opacity": 0.15, "points": [[1, 1086], [211, 1084], [207, 1326], [-8, 1329]]},
+                {"color": "#37322a", "id": "1793463479512", "ign": "Wuscheli8", "name": "Wuscheli8", "opacity": 0.15, "points": [[-5, 846], [211, 844], [211, 1081], [-19, 1084]]},
+                {"color": "#f59e0b", "id": "1793544622380", "ign": "nichtsodeep,EinfTimo", "name": "Nichtsodeep & EinfTimo", "opacity": 0.1, "points": [[-23, 267], [235, 263], [287, 377], [279, 611], [60, 609], [46, 506], [19, 499], [6, 495], [-9, 492]]},
+                {"color": "#125273", "fs": 70, "id": "1793544630940", "ign": "ToasterKing123,m0tv", "lo": [-4, 0], "name": "ToasterKing123 & m0tv", "opacity": 0.1, "points": [[904, 982], [954, 932], [1007, 906], [1066, 990], [1042, 1014], [1031, 1026], [1035, 1036], [1014, 1044], [924, 1076]]},
+                {"color": "#290000", "id": "1793544636204", "ign": "Zyztem_", "name": "Zyztem_", "opacity": 0.15, "points": [[1297, 1107], [1618, 1106], [1610, 1330], [1296, 1328]]},
+                {"color": "#9f7d41", "fs": 100, "id": "1793544638573", "lo": [67, 76], "name": "Cookie", "opacity": 0.1, "points": [[801, 778], [902, 721], [1015, 700], [1012, 812], [1006, 904], [952, 930]]},
+                {"color": "#c81474", "id": "1793551310227", "ign": "Serpex_x", "name": "Serpex_x", "opacity": 0.1, "points": [[1015, 809], [1097, 801], [1231, 831], [1068, 988], [1008, 903]]},
+                {"color": "#028843", "id": "1793552403140", "ign": "Mosawerxwq", "name": "Mosawerxwq", "opacity": 0.1, "points": [[1062, 514], [1000, 497], [1038, 434], [1162, 514], [1241, 567], [1177, 641], [1015, 618]]},
+                {"color": "#6d0693", "id": "1793740222646", "ign": "Passi_071112", "name": "Passi_071112", "opacity": 0.35, "points": [[786, 443], [963, 447], [931, 538], [784, 504]]},
+                {"color": "#eee6d7", "id": "1793740408878", "ign": "Lilmoonstorm07,Sporterkus1", "lo": [1, 33], "name": "Lilmoonstorm07 & Sporterkus1", "opacity": 0.35, "points": [[63, 738], [276, 737], [277, 843], [60, 843]]},
+                {"color": "#0a0a0a", "id": "1793740573423", "ign": "Pismakobra", "lo": [-3, -11], "name": "Pismakobra", "opacity": 0.15, "points": [[585, -53], [845, -54], [802, 92], [795, 115], [790, 132], [821, 135], [820, 161], [596, 194], [581, 162], [581, 132]]},
+                {"color": "#0824b5", "id": "1793741678822", "ign": "Raumwolke34", "lo": [48, -33], "name": "Raumwolke34", "opacity": 0.1, "points": [[1090, 270], [1129, 270], [1207, 287], [1325, 307], [1326, 467], [1215, 386], [1141, 331]]}
             ],
             activeClaimId: null,
             activeTransformId: null,
@@ -1386,18 +1391,23 @@ function restoreBackup(file) {
 // Status in der Admin-Leiste: zeigt, ob und wann zuletzt in die Datenbank geschrieben wurde
 let lastPushOk = 0, lastPushErr = '';
 function setBarStatus(text, kind) {
+  const col = kind === 'err' ? 'text-red-400' : kind === 'ok' ? 'text-emerald-400' : kind === 'busy' ? 'text-amber-300' : 'text-stone-400';
   const b = document.getElementById('bar-status');
-  if (!b) return;
-  b.textContent = text;
-  b.className = 'text-[11px] font-semibold whitespace-nowrap mr-1 ' +
-    (kind === 'err' ? 'text-red-400' : kind === 'ok' ? 'text-emerald-400' : kind === 'busy' ? 'text-amber-300' : 'text-stone-400');
+  if (b) { b.textContent = text; b.className = 'text-[11px] font-semibold whitespace-nowrap mr-1 ' + col; }
+  const m = document.getElementById('map-status');
+  if (m) {
+    m.classList.remove('hidden'); m.classList.add('flex');
+    m.querySelector('.txt').textContent = text;
+    m.querySelector('.txt').className = 'txt ' + col;
+    m.querySelector('span').className = 'w-2 h-2 rounded-full ' +
+      (kind === 'err' ? 'bg-red-500' : kind === 'ok' ? 'bg-emerald-400' : kind === 'busy' ? 'bg-amber-400 animate-pulse' : 'bg-stone-500');
+  }
 }
 function fmtClock(ts) {
   const d = new Date(ts);
   return d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 setInterval(() => {
-  if (!isAdmin) return;
   if (pendingFields.size) { setBarStatus('Speichere…', 'busy'); return; }
   if (lastPushErr) { setBarStatus('Fehler beim Speichern!', 'err'); return; }
   if (lastPushOk) setBarStatus('Gespeichert ' + fmtClock(lastPushOk), 'ok');
@@ -2672,7 +2682,7 @@ const errEl = document.getElementById('admin-error');
 function setAdmin(on) {
   isAdmin = on;
   document.body.classList.toggle('is-admin', on);
-  try { on ? sessionStorage.setItem('cc4_admin', '1') : sessionStorage.removeItem('cc4_admin'); localStorage.setItem('cc4_admin_on', on ? '1' : '0'); } catch (e) {}
+  try { on ? sessionStorage.setItem('cc4_admin', '1') : sessionStorage.removeItem('cc4_admin'); localStorage.removeItem('cc4_admin_on'); } catch (e) {}
   if (on) { loadLive(); startLive(); }
   state.activeClaimId = null; state.activeTransformId = null; state.transformAction = null;
   if (on) applyLocal(); else applyData(JSON.parse(baseline));
@@ -2695,7 +2705,7 @@ codeInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') tryLogin();
   if (e.key === 'Escape') closeLogin();
 });
-try { if (sessionStorage.getItem('cc4_admin') === '1' || localStorage.getItem('cc4_admin_on') === '1') { isAdmin = true; document.body.classList.add('is-admin'); } } catch (e) {}
+try { if (sessionStorage.getItem('cc4_admin') === '1') { isAdmin = true; document.body.classList.add('is-admin'); } } catch (e) {}
 
 applyLocal();
 renderPois();

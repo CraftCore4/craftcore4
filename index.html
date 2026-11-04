@@ -129,6 +129,13 @@
   @keyframes plpulse { 50% { box-shadow:0 0 0 5px rgba(239,68,68,0); } }
   .pl-del { position:absolute; left:.45rem; top:.45rem; width:1.5rem; height:1.5rem; border-radius:.4rem; font-size:.7rem; color:#fca5a5; background:rgba(220,38,38,.18); border:1px solid rgba(239,68,68,.35); }
   .pl-del:hover { background:rgba(220,38,38,.35); }
+  /* ===== Filter-Button + Online-Zähler ===== */
+  .pl-filter { display:inline-flex; align-items:center; gap:.5rem; padding:.6rem .9rem; border-radius:.6rem; font-size:.85rem; font-weight:600; white-space:nowrap; cursor:pointer; background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.15); color:#d6d3d1; transition:background .15s,border-color .15s,color .15s; }
+  .pl-filter:hover { border-color:rgba(52,211,153,.6); color:#fff; }
+  .pl-filter.on { background:rgba(52,211,153,.16); border-color:#34d399; color:#a7f3d0; }
+  .pl-filter-dot { width:.5rem; height:.5rem; border-radius:999px; background:#34d399; flex:none; }
+  .online-pill { display:inline-flex; align-items:center; gap:.5rem; padding:.3rem .8rem; border-radius:999px; font-size:.8rem; font-weight:600; color:rgba(255,255,255,.8); background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); transition:border-color .15s,background .15s; }
+  .online-pill:hover { border-color:rgba(245,158,11,.5); background:rgba(245,158,11,.1); }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -181,7 +188,10 @@
       <p class="text-white/60 mt-2">Tipp auf einen Teilnehmer, um seine Stats und Gebiete zu sehen.</p>
       <div class="flex flex-wrap gap-4 mt-3 text-xs text-white/60"><span class="inline-flex items-center gap-1.5"><span class="pl-dot pl-on" style="position:static"></span>Auf dem Server</span><span class="inline-flex items-center gap-1.5"><span class="pl-dot pl-live" style="position:static"></span>Live auf Twitch</span></div>
     </div>
-    <div class="shop-search-wrap" style="flex:0 1 18rem;min-width:12rem"><i class="fa-solid fa-magnifying-glass"></i><input id="player-search" placeholder="Teilnehmer suchen…" autocomplete="off" class="bg-stone-950 border border-stone-700 rounded-lg px-3 py-2.5 text-sm text-stone-200 focus:outline-none focus:border-amber-500" style="width:100%;padding-left:2.4rem;background:rgba(0,0,0,.35);border-color:rgba(245,158,11,.3)"></div>
+    <div class="flex items-center gap-3" style="flex:1 1 18rem;max-width:26rem">
+    <button id="player-online-btn" type="button" class="pl-filter" aria-pressed="false" title="Nur Teilnehmer zeigen, die gerade auf dem Server sind"><span class="pl-filter-dot"></span>Nur Online</button>
+    <div class="shop-search-wrap" style="flex:1 1 0;min-width:7rem"><i class="fa-solid fa-magnifying-glass"></i><input id="player-search" placeholder="Teilnehmer suchen…" autocomplete="off" class="bg-stone-950 border border-stone-700 rounded-lg px-3 py-2.5 text-sm text-stone-200 focus:outline-none focus:border-amber-500" style="width:100%;padding-left:2.4rem;background:rgba(0,0,0,.35);border-color:rgba(245,158,11,.3)"></div>
+    </div>
   </div>
   <div class="admin-only mb-6 flex flex-wrap gap-2 p-3 rounded-xl border border-amber-500/30 bg-amber-500/5">
     <input id="player-add-input" placeholder="Ingame-Namen hinzufügen (mehrere mit Komma trennen)" autocomplete="off" class="flex-1 min-w-[12rem] bg-stone-950 border border-stone-700 rounded-lg px-3 py-2 text-sm text-stone-200 focus:outline-none focus:border-amber-500">
@@ -232,17 +242,16 @@
 </section>
 
 <section id="live" class="max-w-6xl mx-auto px-4 pb-24">
-  <h2 class="text-3xl md:text-4xl font-extrabold sec-title"><span class="sec-ico"><i class="fa-solid fa-tower-broadcast"></i></span>Live</h2>
-  <p class="text-white/60 mt-2">Wer ist gerade auf dem Server und wer streamt?</p>
-  <div class="grid lg:grid-cols-5 gap-6 mt-8">
-    <div class="lg:col-span-2 rounded-2xl border border-white/10 bg-white/5 p-5">
-      <div class="flex items-center justify-between"><h3 class="text-lg font-extrabold"><span class="card-ico"><i class="fa-solid fa-user-group"></i></span>Gerade online</h3><span id="live-count" class="text-sm text-white/60"></span></div>
-      <div id="live-online" class="mt-4 flex flex-col gap-2"></div>
+  <div class="flex flex-wrap items-end justify-between gap-3">
+    <div>
+      <h2 class="text-3xl md:text-4xl font-extrabold sec-title"><span class="sec-ico"><i class="fa-solid fa-tower-broadcast"></i></span>Live</h2>
+      <p class="text-white/60 mt-2">Wer streamt gerade?</p>
     </div>
-    <div class="lg:col-span-3 rounded-2xl border border-white/10 bg-white/5 p-5">
-      <div class="flex items-center justify-between"><h3 class="text-lg font-extrabold"><span class="card-ico"><i class="fa-brands fa-twitch"></i></span>Auf Twitch live</h3><span id="live-viewers" class="text-sm text-white/60"></span></div>
-      <div id="live-streams" class="mt-4 grid sm:grid-cols-2 gap-4"></div>
-    </div>
+    <a id="live-counter" href="#spieler" class="online-pill" style="display:none" title="Zu den Teilnehmern: grüne Punkte zeigen, wer auf dem Server ist"><span class="w-2 h-2 rounded-full bg-emerald-400"></span><span id="live-counter-text"></span></a>
+  </div>
+  <div class="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5 md:p-6">
+    <div class="flex items-center justify-between"><h3 class="text-lg font-extrabold"><span class="card-ico"><i class="fa-brands fa-twitch"></i></span>Auf Twitch live</h3><span id="live-viewers" class="text-sm text-white/60"></span></div>
+    <div id="live-streams" class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
   </div>
 </section>
 
@@ -1855,12 +1864,13 @@ function playerDots(n) {
   return d;
 }
 let plOpen = null;
+let plOnlyOn = false;
 function renderPlayers() {
   const box = $('grid'); if (!box || !window.__statsReady) return;
   const q = (($('player-search') || {}).value || '').trim().toLowerCase();
   box.innerHTML = '';
-  const list = playerList().filter(n => !q || n.toLowerCase().includes(q));
-  if (!list.length) { box.appendChild(el('p', 'text-white/50 text-sm col-span-full', q ? 'Kein Teilnehmer gefunden.' : (isAdmin ? 'Noch keine Teilnehmer. Füge oben Namen hinzu.' : 'Noch keine Teilnehmer eingetragen.'))); }
+  const list = playerList().filter(n => (!q || n.toLowerCase().includes(q)) && (!plOnlyOn || isOnline(n)));
+  if (!list.length) { box.appendChild(el('p', 'text-white/50 text-sm col-span-full', q ? 'Kein Teilnehmer gefunden.' : (plOnlyOn ? 'Gerade ist niemand von den Teilnehmern auf dem Server.' : isAdmin ? 'Noch keine Teilnehmer. Füge oben Namen hinzu.' : 'Noch keine Teilnehmer eingetragen.'))); }
   list.forEach(n => {
     const c = el('div', 'pl-card'); c.setAttribute('role', 'button'); c.tabIndex = 0;
     const im = el('img'); im.src = 'https://minotar.net/armor/bust/' + encodeURIComponent(n) + '/128.png'; im.alt = n; im.loading = 'lazy';
@@ -1940,6 +1950,7 @@ $('pm-close').addEventListener('click', () => { plOpen = null; renderPlayerModal
 $('player-modal').addEventListener('mousedown', e => { if (e.target === $('player-modal')) { plOpen = null; renderPlayerModal(); } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && plOpen) { plOpen = null; renderPlayerModal(); } });
 $('player-search').addEventListener('input', renderPlayers);
+$('player-online-btn').addEventListener('click', () => { plOnlyOn = !plOnlyOn; const b = $('player-online-btn'); b.classList.toggle('on', plOnlyOn); b.setAttribute('aria-pressed', String(plOnlyOn)); renderPlayers(); });
 function addPlayers() {
   const inp = $('player-add-input'), names = String(inp.value || '').split(/[,;\n]/).map(x => x.trim()).filter(Boolean);
   if (!names.length) return;
@@ -2365,27 +2376,26 @@ function renderLeaderboard() {
 }
 
 // ---- Live: online + Twitch
+function onlineLabel() {
+  if (!dbUrl() || !stats.loaded) return '';
+  if (!serverFresh()) return 'Server offline';
+  const n = Object.values(stats.players || {}).filter(p => p && p.online && p.name).length;
+  return n + (stats.server.max ? ' von ' + stats.server.max : '') + ' online';
+}
 function renderLive() {
-  const on = $('live-online'); if (!on) return;
-  const fresh = serverFresh();
-  const names = fresh ? Object.values(stats.players).filter(p => p && p.online && p.name).map(p => p.name).sort((a, b) => a.localeCompare(b)) : [];
-  on.innerHTML = '';
-  $('live-count').textContent = fresh ? names.length + (stats.server.max ? ' von ' + stats.server.max : '') : '';
-  if (!dbUrl()) on.appendChild(el('p', 'text-white/50 text-sm', 'Die Datenbank ist noch nicht verbunden.'));
-  else if (!stats.loaded) on.appendChild(el('p', 'text-white/50 text-sm', stats.error ? 'Daten konnten nicht geladen werden.' : 'Lade …'));
-  else if (!fresh) on.appendChild(el('p', 'text-white/50 text-sm', 'Der Server ist gerade offline.'));
-  else if (!names.length) on.appendChild(el('p', 'text-white/50 text-sm', 'Gerade ist niemand online.'));
-  else names.forEach(n => on.appendChild(nameChip(n)));
-  const box = $('live-streams'); box.innerHTML = '';
+  const box = $('live-streams'); if (!box) return;
+  const ct = $('live-counter');
+  if (ct) { const lbl = onlineLabel(); ct.style.display = lbl ? '' : 'none'; if (lbl) $('live-counter-text').textContent = lbl; }
+  box.innerHTML = '';
   const ls = liveStreams();
   const total = ls.reduce((a, s) => a + (s.viewers || 0), 0);
   $('live-viewers').textContent = ls.length ? nf.format(total) + ' Zuschauer' : '';
-  if (!ls.length) { box.appendChild(el('p', 'text-white/50 text-sm sm:col-span-2', stats.loaded ? 'Gerade streamt niemand.' : '')); }
+  if (!ls.length) { box.appendChild(el('p', 'text-white/50 text-sm col-span-full', stats.loaded ? 'Gerade streamt niemand.' : '')); }
   ls.forEach(s => {
     const a = el('a', 'group rounded-xl overflow-hidden border border-white/10 bg-stone-900/70 hover:border-purple-400/70 transition flex flex-col');
     a.href = 'https://twitch.tv/' + s.login; a.target = '_blank'; a.rel = 'noopener';
     const th = el('div', 'relative aspect-video bg-stone-800');
-    if (/^https:\/\//.test(s.thumb || '')) { const im = el('img', 'w-full h-full object-cover'); im.src = String(s.thumb).replace('{width}', '440').replace('{height}', '248'); im.loading = 'lazy'; th.appendChild(im); }
+    if (/^https:\/\//.test(s.thumb || '')) { const im = el('img', 'w-full h-full object-cover'); im.src = String(s.thumb).replace('{width}', '640').replace('{height}', '360'); im.loading = 'lazy'; th.appendChild(im); }
     th.appendChild(el('span', 'absolute top-2 left-2 px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-bold uppercase tracking-wider', 'Live'));
     const vw = el('span', 'absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/70 text-white text-xs font-semibold'); vw.textContent = nf.format(s.viewers || 0) + ' Zuschauer'; th.appendChild(vw);
     const body = el('div', 'p-3 flex flex-col gap-1');
@@ -2400,10 +2410,10 @@ function renderHeroOnline() {
   const e = $('hero-online'); if (!e) return;
   e.innerHTML = '';
   if (!serverFresh()) return;
-  const n = Object.values(stats.players).filter(p => p && p.online).length;
   const ls = liveStreams().length;
-  e.innerHTML = '<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10"><span class="w-2 h-2 rounded-full bg-emerald-400"></span><span></span></span>';
-  e.querySelector('span span:last-child').textContent = n + (n === 1 ? ' Spieler online' : ' Spieler online') + (ls ? ' · ' + ls + ' live auf Twitch' : '');
+  e.innerHTML = '<a href="#spieler" class="online-pill"><span class="w-2 h-2 rounded-full bg-emerald-400"></span><span></span></a>';
+  const n = Object.values(stats.players || {}).filter(p => p && p.online && p.name).length;
+  e.querySelector('a span:last-child').textContent = n + ' Online' + (ls ? ' · ' + ls + ' live auf Twitch' : '');
 }
 function renderStatsViews() {
   renderLeaderboard(); renderLive(); renderHeroOnline(); renderPlayers();

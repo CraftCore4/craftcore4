@@ -1410,7 +1410,8 @@ const BTN = 'px-2 py-1.5 text-[11px] font-semibold rounded bg-stone-800 hover:bg
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 const mkBtn = (html, cls) => { const b = el('button', cls || BTN, html); b.type = 'button'; return b; };
 const splitNames = s => String(s || '').split(/[,&+]/).map(x => x.trim()).filter(Boolean);
-const headUrl = n => 'https://minotar.net/helm/' + encodeURIComponent(n) + '/64.png';
+const SKIN_V = Math.floor(Date.now() / 1800000); // alle 30 Min. neuer Cache-Schlüssel, damit geänderte Skins nachgeladen werden
+const headUrl = n => 'https://minotar.net/helm/' + encodeURIComponent(n) + '/64.png?v=' + SKIN_V;
 
 function nameChip(n) {
   const w = el('div', 'flex items-center gap-2');
@@ -1873,7 +1874,7 @@ function renderPlayers() {
   if (!list.length) { box.appendChild(el('p', 'text-white/50 text-sm col-span-full', q ? 'Kein Teilnehmer gefunden.' : (plOnlyOn ? 'Gerade ist niemand von den Teilnehmern auf dem Server.' : isAdmin ? 'Noch keine Teilnehmer. Füge oben Namen hinzu.' : 'Noch keine Teilnehmer eingetragen.'))); }
   list.forEach(n => {
     const c = el('div', 'pl-card'); c.setAttribute('role', 'button'); c.tabIndex = 0;
-    const im = el('img'); im.src = 'https://minotar.net/armor/bust/' + encodeURIComponent(n) + '/128.png'; im.alt = n; im.loading = 'lazy';
+    const im = el('img'); im.src = 'https://minotar.net/armor/bust/' + encodeURIComponent(n) + '/128.png?v=' + SKIN_V; im.alt = n; im.loading = 'lazy';
     im.onerror = () => { im.onerror = null; im.src = headUrl(n); };
     const nm = el('span', 'pl-name'); nm.textContent = n; nm.title = n;
     c.append(im, nm, playerDots(n));
@@ -1895,7 +1896,7 @@ function renderPlayerModal() {
   m.style.display = 'flex';
   const body = $('pm-body'); const keepScroll = body.parentElement.scrollTop; body.innerHTML = '';
   const head = el('div', 'flex items-center gap-4 pr-8');
-  const im = el('img', 'w-24 h-24 object-contain shrink-0'); im.src = 'https://minotar.net/armor/bust/' + encodeURIComponent(n) + '/160.png'; im.alt = n; im.style.imageRendering = 'pixelated';
+  const im = el('img', 'w-24 h-24 object-contain shrink-0'); im.src = 'https://minotar.net/armor/bust/' + encodeURIComponent(n) + '/160.png?v=' + SKIN_V; im.alt = n; im.style.imageRendering = 'pixelated';
   im.onerror = () => { im.onerror = null; im.src = headUrl(n); };
   const hc = el('div', 'min-w-0 flex flex-col gap-2');
   const tag = el('span', 'self-start text-2xl font-extrabold text-white break-all'); tag.textContent = n;

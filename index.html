@@ -1747,11 +1747,30 @@ b/pumpkin_side:pumpkin|kürbis
 b/melon_side:melonenblock
 b/cactus_side:cactus|kaktus
 b/white_wool:wool|wolle
+s/shulker_box:shulker|shulkerbox|shulkers|shulkerkiste|shulkerkisten|schulker|schulkerbox|schulkerkiste
+s/potion_strength:stärketrank|stärkepotion|trankderstärke|stärketränke|strengthpotion|potionofstrength|staerketrank|staerkepotion|strength
+s/potion_speed:schnelligkeitstrank|geschwindigkeitstrank|tempotrank|speedpotion|speedtrank|swiftnesspotion
+s/potion_regeneration:regenerationstrank|regenerationspotion|regenerationpotion|regenpotion|regentrank
+s/potion_fire_resistance:feuerresistenztrank|feuerschutztrank|feuerresistenzpotion|fireresistancepotion|fireresistance
+s/potion_healing:heiltrank|heilungstrank|heilungspotion|healingpotion|healing|instanthealth
+s/potion_night_vision:nachtsichttrank|nachtsichtpotion|nightvisionpotion|nightvision
+s/potion_invisibility:unsichtbarkeitstrank|unsichtbarkeitspotion|invisibilitypotion|invisibility
+s/potion_jump:sprungkrafttrank|sprungkraftpotion|jumppotion|jumpboost|leaping
+s/potion_water_breathing:wasseratmungstrank|wasseratmungspotion|waterbreathingpotion|waterbreathing|unterwasseratmung
 `;
 const MC_STOP = new Set(['aller','alle','allerart','art','arten','von','der','die','das','und','and','shop','laden','verschiedene','diverse','etc','usw','mehr','viel','vieles','sachen','zeug']);
 const MC_MAP = {};
-MC_DICT.trim().split('\n').forEach(l => { const [id, al] = l.split(':'); const kind = id.startsWith('b/') ? 'b' : 'i', n = id.replace(/^b\//, ''); [n.replace(/_/g, ''), ...al.split('|')].forEach(a => { if (!(a in MC_MAP)) MC_MAP[a] = [kind, n]; }); });
+MC_DICT.trim().split('\n').forEach(l => { const [id, al] = l.split(':'); const kind = id.startsWith('b/') ? 'b' : id.startsWith('s/') ? 's' : 'i', n = id.replace(/^[bs]\//, ''); [n.replace(/_/g, ''), ...al.split('|')].forEach(a => { if (!(a in MC_MAP)) MC_MAP[a] = [kind, n]; }); });
 const MC_BASES = ['https://cdn.jsdelivr.net/gh/PrismarineJS/minecraft-assets@master/data/1.20.2/', 'https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.2/', 'https://cdn.jsdelivr.net/gh/PrismarineJS/minecraft-assets@master/data/1.19/'];
+const svgUri = s => 'data:image/svg+xml;utf8,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'>" + s + "</svg>");
+const potionSvg = c => svgUri("<rect x='6' y='0' width='4' height='2' fill='#a0702f'/><rect x='5' y='2' width='6' height='3' fill='#4f5d69'/><rect x='6' y='2' width='4' height='3' fill='#d7e8f2'/>"
+  + "<rect x='4' y='5' width='8' height='1' fill='#4f5d69'/><rect x='3' y='6' width='10' height='1' fill='#4f5d69'/><rect x='2' y='7' width='12' height='6' fill='#4f5d69'/><rect x='3' y='13' width='10' height='1' fill='#4f5d69'/><rect x='4' y='14' width='8' height='1' fill='#4f5d69'/>"
+  + "<rect x='6' y='5' width='4' height='1' fill='#d7e8f2'/><rect x='4' y='6' width='8' height='1' fill='#d7e8f2'/><rect x='3' y='7' width='10' height='1' fill='#d7e8f2'/>"
+  + "<rect x='3' y='8' width='10' height='5' fill='" + c + "'/><rect x='4' y='13' width='8' height='1' fill='" + c + "'/><rect x='4' y='9' width='1' height='2' fill='#fff' opacity='.55'/>");
+const MC_SVG = {
+  shulker_box: svgUri("<rect x='1' y='3' width='14' height='12' fill='#4a2f4a'/><rect x='2' y='4' width='12' height='5' fill='#a875a8'/><rect x='2' y='4' width='12' height='1' fill='#c79bc7'/><rect x='2' y='9' width='12' height='1' fill='#5d3d5d'/><rect x='2' y='10' width='12' height='4' fill='#8b5c8b'/><rect x='7' y='8' width='2' height='3' fill='#e3cf8a'/><rect x='7' y='9' width='2' height='1' fill='#b59a52'/>")
+};
+Object.entries({ strength: '#932423', speed: '#7cafc6', regeneration: '#cd5cab', fire_resistance: '#e49a3a', healing: '#f82423', night_vision: '#3b3bd0', invisibility: '#a7acb8', jump: '#22ff4c', water_breathing: '#2e5299' }).forEach(([k, c]) => { MC_SVG['potion_' + k] = potionSvg(c); });
 function mcLookup(w) {
   const k = w.toLowerCase().replace(/[\s_\-.'’"!]/g, '');
   if (!k) return null;
@@ -1763,7 +1782,7 @@ function mcIcon(item, label) {
   const box = el('span', 'sell-ico'); box.title = label;
   const img = document.createElement('img'); img.alt = label; img.loading = 'lazy';
   let n = 0;
-  const src = () => MC_BASES[n] + (item[0] === 'b' ? 'blocks/' : 'items/') + item[1] + '.png';
+  const src = () => item[0] === 's' ? MC_SVG[item[1]] : MC_BASES[n] + (item[0] === 'b' ? 'blocks/' : 'items/') + item[1] + '.png';
   img.onerror = () => { n++; if (n < MC_BASES.length) img.src = src(); else { box.className = 'sell-txt'; box.textContent = label; img.remove(); } };
   img.src = src(); box.appendChild(img);
   return box;

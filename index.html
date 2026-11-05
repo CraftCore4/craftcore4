@@ -1876,7 +1876,7 @@ function renderPlayers() {
   if (!list.length) { box.appendChild(el('p', 'text-white/50 text-sm col-span-full', q ? 'Kein Teilnehmer gefunden.' : (plOnlyOn ? 'Gerade ist niemand von den Teilnehmern auf dem Server.' : isAdmin ? 'Noch keine Teilnehmer. Füge oben Namen hinzu.' : 'Noch keine Teilnehmer eingetragen.'))); }
   list.forEach(n => {
     const c = el('div', 'pl-card'); c.setAttribute('role', 'button'); c.tabIndex = 0;
-    const im = el('img'); im.src = 'https://mc-heads.net/body/' + encodeURIComponent(n) + '/128'; im.alt = n; im.loading = 'lazy';
+    const im = el('img'); im.src = 'https://mc-heads.net/body/' + encodeURIComponent(n) + '/left'; im.alt = n; im.loading = 'lazy';
     im.onerror = () => { im.onerror = null; im.src = fallbackBodyUrl(n); };
     const nm = el('span', 'pl-name'); nm.textContent = n; nm.title = n;
     c.append(im, nm, playerDots(n));
@@ -1898,7 +1898,7 @@ function renderPlayerModal() {
   m.style.display = 'flex';
   const body = $('pm-body'); const keepScroll = body.parentElement.scrollTop; body.innerHTML = '';
   const head = el('div', 'flex items-center gap-4 pr-8');
-  const im = el('img', 'h-28 w-auto object-contain shrink-0'); im.src = 'https://mc-heads.net/body/' + encodeURIComponent(n) + '/160'; im.alt = n; im.style.imageRendering = 'pixelated';
+  const im = el('img', 'h-28 w-auto object-contain shrink-0'); im.src = 'https://mc-heads.net/body/' + encodeURIComponent(n) + '/left'; im.alt = n; im.style.imageRendering = 'pixelated';
   im.onerror = () => { im.onerror = null; im.src = fallbackBodyUrl(n); };
   const hc = el('div', 'min-w-0 flex flex-col gap-2');
   const tag = el('span', 'self-start text-2xl font-extrabold text-white break-all'); tag.textContent = n;

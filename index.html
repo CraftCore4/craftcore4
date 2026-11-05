@@ -120,7 +120,7 @@
   /* ===== Spieler ===== */
   .pl-card { position:relative; display:flex; flex-direction:column; align-items:center; gap:.6rem; padding:1.1rem .75rem .9rem; border-radius:1rem; border:1px solid rgba(245,158,11,.22); background:linear-gradient(160deg, rgba(245,158,11,.09), rgba(255,255,255,.02) 55%); cursor:pointer; transition:transform .15s, border-color .15s; text-align:center; }
   .pl-card:hover { transform:translateY(-4px); border-color:rgba(245,158,11,.55); }
-  .pl-card img { width:auto; height:6.5rem; max-width:100%; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 6px 8px rgba(0,0,0,.5)); }
+  .pl-card img { width:5rem; height:5rem; object-fit:contain; image-rendering:pixelated; filter:drop-shadow(0 6px 8px rgba(0,0,0,.5)); }
   .pl-name { max-width:100%; padding:.15rem .5rem; font-weight:700; font-size:.85rem; line-height:1.2; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pl-dots { position:absolute; top:.55rem; right:.55rem; display:flex; gap:.35rem; }
   .pl-dot { position:relative; display:inline-block; width:.7rem; height:.7rem; border-radius:50%; border:2px solid #1c1b19; }
@@ -1413,7 +1413,7 @@ const splitNames = s => String(s || '').split(/[,&+]/).map(x => x.trim()).filter
 // Skin-Quelle: mineskin.eu; mc-heads.net nur als Notlösung
 const headUrl = n => 'https://mineskin.eu/helm/' + encodeURIComponent(n) + '/64.png';
 const fallbackHeadUrl = n => 'https://mc-heads.net/avatar/' + encodeURIComponent(n) + '/64';
-const fallbackBodyUrl = n => 'https://mc-heads.net/body/' + encodeURIComponent(n) + '/left';
+const fallbackBodyUrl = n => 'https://mc-heads.net/avatar/' + encodeURIComponent(n) + '/128';
 
 function nameChip(n) {
   const w = el('div', 'flex items-center gap-2');
@@ -1876,7 +1876,7 @@ function renderPlayers() {
   if (!list.length) { box.appendChild(el('p', 'text-white/50 text-sm col-span-full', q ? 'Kein Teilnehmer gefunden.' : (plOnlyOn ? 'Gerade ist niemand von den Teilnehmern auf dem Server.' : isAdmin ? 'Noch keine Teilnehmer. Füge oben Namen hinzu.' : 'Noch keine Teilnehmer eingetragen.'))); }
   list.forEach(n => {
     const c = el('div', 'pl-card'); c.setAttribute('role', 'button'); c.tabIndex = 0;
-    const im = el('img'); im.src = 'https://mineskin.eu/armor/body/' + encodeURIComponent(n) + '/128.png'; im.alt = n; im.loading = 'lazy';
+    const im = el('img'); im.src = 'https://mineskin.eu/armor/bust/' + encodeURIComponent(n) + '/128.png'; im.alt = n; im.loading = 'lazy';
     im.onerror = () => { im.onerror = null; im.src = fallbackBodyUrl(n); };
     const nm = el('span', 'pl-name'); nm.textContent = n; nm.title = n;
     c.append(im, nm, playerDots(n));
@@ -1898,7 +1898,7 @@ function renderPlayerModal() {
   m.style.display = 'flex';
   const body = $('pm-body'); const keepScroll = body.parentElement.scrollTop; body.innerHTML = '';
   const head = el('div', 'flex items-center gap-4 pr-8');
-  const im = el('img', 'h-28 w-auto object-contain shrink-0'); im.src = 'https://mineskin.eu/armor/body/' + encodeURIComponent(n) + '/160.png'; im.alt = n; im.style.imageRendering = 'pixelated';
+  const im = el('img', 'w-24 h-24 object-contain shrink-0'); im.src = 'https://mineskin.eu/armor/bust/' + encodeURIComponent(n) + '/160.png'; im.alt = n; im.style.imageRendering = 'pixelated';
   im.onerror = () => { im.onerror = null; im.src = fallbackBodyUrl(n); };
   const hc = el('div', 'min-w-0 flex flex-col gap-2');
   const tag = el('span', 'self-start text-2xl font-extrabold text-white break-all'); tag.textContent = n;

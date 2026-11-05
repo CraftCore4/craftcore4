@@ -1410,10 +1410,10 @@ const BTN = 'px-2 py-1.5 text-[11px] font-semibold rounded bg-stone-800 hover:bg
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 const mkBtn = (html, cls) => { const b = el('button', cls || BTN, html); b.type = 'button'; return b; };
 const splitNames = s => String(s || '').split(/[,&+]/).map(x => x.trim()).filter(Boolean);
-// Skin-Quelle: mc-heads.net (aktualisiert Skins schneller als minotar); minotar nur als Notlösung
-const headUrl = n => 'https://mc-heads.net/avatar/' + encodeURIComponent(n) + '/64';
-const fallbackHeadUrl = n => 'https://minotar.net/helm/' + encodeURIComponent(n) + '/64.png';
-const fallbackBodyUrl = n => 'https://minotar.net/armor/body/' + encodeURIComponent(n) + '/128.png';
+// Skin-Quelle: mineskin.eu; mc-heads.net nur als Notlösung
+const headUrl = n => 'https://mineskin.eu/helm/' + encodeURIComponent(n) + '/64.png';
+const fallbackHeadUrl = n => 'https://mc-heads.net/avatar/' + encodeURIComponent(n) + '/64';
+const fallbackBodyUrl = n => 'https://mc-heads.net/body/' + encodeURIComponent(n) + '/left';
 
 function nameChip(n) {
   const w = el('div', 'flex items-center gap-2');
@@ -1876,7 +1876,7 @@ function renderPlayers() {
   if (!list.length) { box.appendChild(el('p', 'text-white/50 text-sm col-span-full', q ? 'Kein Teilnehmer gefunden.' : (plOnlyOn ? 'Gerade ist niemand von den Teilnehmern auf dem Server.' : isAdmin ? 'Noch keine Teilnehmer. Füge oben Namen hinzu.' : 'Noch keine Teilnehmer eingetragen.'))); }
   list.forEach(n => {
     const c = el('div', 'pl-card'); c.setAttribute('role', 'button'); c.tabIndex = 0;
-    const im = el('img'); im.src = 'https://mc-heads.net/body/' + encodeURIComponent(n) + '/left'; im.alt = n; im.loading = 'lazy';
+    const im = el('img'); im.src = 'https://mineskin.eu/armor/body/' + encodeURIComponent(n) + '/128.png'; im.alt = n; im.loading = 'lazy';
     im.onerror = () => { im.onerror = null; im.src = fallbackBodyUrl(n); };
     const nm = el('span', 'pl-name'); nm.textContent = n; nm.title = n;
     c.append(im, nm, playerDots(n));
@@ -1898,7 +1898,7 @@ function renderPlayerModal() {
   m.style.display = 'flex';
   const body = $('pm-body'); const keepScroll = body.parentElement.scrollTop; body.innerHTML = '';
   const head = el('div', 'flex items-center gap-4 pr-8');
-  const im = el('img', 'h-28 w-auto object-contain shrink-0'); im.src = 'https://mc-heads.net/body/' + encodeURIComponent(n) + '/left'; im.alt = n; im.style.imageRendering = 'pixelated';
+  const im = el('img', 'h-28 w-auto object-contain shrink-0'); im.src = 'https://mineskin.eu/armor/body/' + encodeURIComponent(n) + '/160.png'; im.alt = n; im.style.imageRendering = 'pixelated';
   im.onerror = () => { im.onerror = null; im.src = fallbackBodyUrl(n); };
   const hc = el('div', 'min-w-0 flex flex-col gap-2');
   const tag = el('span', 'self-start text-2xl font-extrabold text-white break-all'); tag.textContent = n;

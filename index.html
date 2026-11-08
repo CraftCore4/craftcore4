@@ -141,6 +141,18 @@
   .potion-stack { position:relative; display:block; width:1.9rem; height:1.9rem; }
   .potion-stack img, .potion-liquid { position:absolute; left:0; top:0; width:1.9rem; height:1.9rem; image-rendering:pixelated; }
   .potion-liquid { -webkit-mask-size:contain; mask-size:contain; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-position:center; mask-position:center; }
+  .yt-chip { padding:.45rem .9rem; border-radius:999px; font-size:.85rem; font-weight:600; color:#e7dcc0; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); cursor:pointer; transition:border-color .15s,background .15s; }
+  .yt-chip:hover { border-color:rgba(245,158,11,.55); }
+  .yt-chip.on { background:#f59e0b; border-color:#f59e0b; color:#1c1b19; }
+  .yt-chip.add { border-style:dashed; color:#fcd34d; }
+  .yt-card { display:flex; flex-direction:column; border-radius:1rem; overflow:hidden; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); }
+  .yt-thumb { position:relative; aspect-ratio:16/9; background:#000 center/cover no-repeat; cursor:pointer; }
+  .yt-thumb iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+  .yt-play { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:3.4rem; height:2.4rem; border-radius:.7rem; background:#ef4444; color:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(0,0,0,.45); }
+  .vensar-card { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; padding:1.1rem 1.25rem; border-radius:1.1rem; border:1px solid rgba(245,158,11,.35); background:linear-gradient(135deg,rgba(245,158,11,.14),rgba(255,255,255,.03)); transition:border-color .15s,transform .15s; }
+  .vensar-card:hover { border-color:rgba(245,158,11,.7); transform:translateY(-2px); }
+  .vensar-ico { display:inline-flex; align-items:center; justify-content:center; width:3rem; height:3rem; border-radius:.9rem; flex:none; font-size:1.3rem; color:#1c1b19; background:linear-gradient(145deg,#fcd34d,#f59e0b); }
+  .vensar-go { margin-left:auto; padding:.55rem 1rem; border-radius:.7rem; background:#f59e0b; color:#1c1b19; font-weight:800; font-size:.85rem; white-space:nowrap; }
   .online-pill { display:inline-flex; align-items:center; gap:.5rem; padding:.3rem .8rem; border-radius:999px; font-size:.8rem; font-weight:600; color:rgba(255,255,255,.8); background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); transition:border-color .15s,background .15s; }
   .online-pill:hover { border-color:rgba(245,158,11,.5); background:rgba(245,158,11,.1); }
 </style>
@@ -162,6 +174,7 @@
         <a data-nav="event-teaser" href="#event-teaser" class="nav-link">Events</a>
         <a data-nav="bestenlisten" href="#bestenlisten" class="nav-link">Bestenlisten</a>
         <a data-nav="live" href="#live" class="nav-link">Live</a>
+  <a data-nav="videos" href="#videos" class="nav-link">Videos</a>
         <a data-nav="abstimmung" href="#abstimmung" class="nav-link">Abstimmung</a>
       </div>
     </nav>
@@ -226,6 +239,11 @@
     <a href="#shops" class="text-amber-400 hover:text-amber-300 font-semibold text-sm">Alle Shops ansehen →</a>
   </div>
   <div id="shop-teaser-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  <a href="https://vensarexpress.shop/" target="_blank" rel="noopener" class="vensar-card mt-6">
+    <span class="vensar-ico"><i class="fa-solid fa-box-open"></i></span>
+    <span class="min-w-0"><span class="block font-extrabold text-white text-lg">Vensar Express</span><span class="block text-sm text-white/65">Wie Amazon, nur für CraftCore 4: Hier kannst du auf dem Server bestellen.</span></span>
+    <span class="vensar-go">Zu Vensar <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+  </a>
 </section>
 
 <section id="event-teaser" class="max-w-6xl mx-auto px-4 pb-24">
@@ -260,6 +278,19 @@
     <div class="flex items-center justify-between"><h3 class="text-lg font-extrabold"><span class="card-ico"><i class="fa-brands fa-twitch"></i></span>Auf Twitch live</h3><span id="live-viewers" class="text-sm text-white/60"></span></div>
     <div id="live-streams" class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
   </div>
+</section>
+
+<section id="videos" class="max-w-6xl mx-auto px-4 pb-24">
+  <div class="flex flex-wrap items-end justify-between gap-3 mb-6">
+    <div>
+      <h2 class="text-3xl md:text-4xl font-extrabold sec-title"><span class="sec-ico"><i class="fa-brands fa-youtube"></i></span>Videos</h2>
+      <p class="text-white/60 mt-2">Videos von Content Creatern über CraftCore 4.</p>
+    </div>
+    <button id="yt-add" type="button" class="admin-only px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold whitespace-nowrap">+ Video hinzufügen</button>
+  </div>
+  <div id="yt-chips" class="flex flex-wrap gap-2 mb-4"></div>
+  <div id="yt-bar" class="flex flex-wrap items-center gap-3 mb-4"></div>
+  <div id="yt-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
 </section>
 
 <section id="abstimmung" class="max-w-6xl mx-auto px-4 pb-24">
@@ -1237,7 +1268,7 @@ let baseline = snapshot();
 function applyData(d) {
   state.claims = d.c; site = d.s;
   window.renderGrid(state.claims.map(c => [c.name, c.color]));
-  renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents(); renderPlayers();
+  renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents(); renderVideos(); renderPlayers();
   if (started) render();
 }
 function applyLocal() {
@@ -2087,6 +2118,84 @@ $('event-add').addEventListener('click', () => {
   $('event-search').value = ''; renderEvents(); saveLocal();
 });
 
+// ================= Videos =================
+var ytFilter = 'all';
+const ytId = u => { u = String(u || '').trim(); const m = u.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(u) ? u : ''); };
+function renderVideos() {
+  const chips = $('yt-chips'), grid = $('yt-grid'), bar = $('yt-bar'); if (!chips || !grid || !bar) return;
+  site.creators = site.creators || []; site.videos = site.videos || [];
+  if (ytFilter !== 'all' && !site.creators.some(c => c.id === ytFilter)) ytFilter = 'all';
+  chips.innerHTML = ''; bar.innerHTML = ''; grid.innerHTML = '';
+  const chip = (label, id) => { const b = el('button', 'yt-chip' + (ytFilter === id ? ' on' : '')); b.type = 'button'; b.textContent = label; b.addEventListener('click', () => { ytFilter = id; renderVideos(); }); chips.appendChild(b); };
+  chip('Alle · ' + site.videos.length, 'all');
+  site.creators.forEach(c => chip(c.name + ' · ' + site.videos.filter(v => v.creator === c.id).length, c.id));
+  if (isAdmin) {
+    const b = el('button', 'yt-chip add'); b.type = 'button'; b.textContent = '+ Creator';
+    b.addEventListener('click', () => {
+      const name = (prompt('Name des Creators:') || '').trim(); if (!name) return;
+      const url = (prompt('Link zum YouTube-Kanal (optional):') || '').trim();
+      const c = { id: 'c' + Date.now().toString(36), name: name.slice(0, 40), url: /^https?:\/\//.test(url) ? url : '' };
+      site.creators.push(c); ytFilter = c.id; renderVideos(); saveLocal();
+    });
+    chips.appendChild(b);
+  }
+  const cur = site.creators.find(c => c.id === ytFilter);
+  if (cur) {
+    if (cur.url) { const a = el('a', 'text-amber-400 hover:text-amber-300 font-semibold text-sm'); a.href = cur.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Kanal von ' + cur.name + ' auf YouTube →'; bar.appendChild(a); }
+    if (isAdmin) {
+      const ch = mkBtn('Kanal-Link ändern'); ch.addEventListener('click', () => { const u = prompt('Link zum YouTube-Kanal:', cur.url || ''); if (u == null) return; cur.url = /^https?:\/\//.test(u.trim()) ? u.trim() : ''; renderVideos(); saveLocal(); });
+      const dl = mkBtn('Creator löschen', 'px-2 py-1.5 text-[11px] font-semibold rounded bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
+      dl.addEventListener('click', () => { if (!confirm('„' + cur.name + '“ und alle seine Videos löschen?')) return; site.videos = site.videos.filter(v => v.creator !== cur.id); site.creators = site.creators.filter(c => c.id !== cur.id); ytFilter = 'all'; renderVideos(); saveLocal(); });
+      bar.appendChild(ch); bar.appendChild(dl);
+    }
+  }
+  const list = site.videos.filter(v => ytFilter === 'all' || v.creator === ytFilter).sort((a, b) => (b.added || 0) - (a.added || 0));
+  if (!list.length) {
+    const e = el('div', 'shop-empty', '<i class="fa-brands fa-youtube"></i><div class="font-bold text-white text-lg mt-2"></div><div class="mt-1"></div>');
+    e.children[1].textContent = 'Noch keine Videos'; e.children[2].textContent = isAdmin ? 'Füge Creator und Videos mit den Buttons oben hinzu.' : 'Schau bald wieder vorbei.';
+    grid.appendChild(e); return;
+  }
+  list.forEach(v => {
+    const c = el('div', 'yt-card');
+    const th = el('div', 'yt-thumb', '<span class="yt-play"><i class="fa-solid fa-play"></i></span>');
+    th.style.backgroundImage = 'url(https://img.youtube.com/vi/' + v.vid + '/hqdefault.jpg)';
+    th.setAttribute('role', 'button'); th.tabIndex = 0;
+    const play = () => { th.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + v.vid + '?autoplay=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'; };
+    th.addEventListener('click', play, { once: true });
+    th.addEventListener('keydown', e => { if (e.key === 'Enter') play(); }, { once: true });
+    const info = el('div', 'p-3 flex flex-col gap-1');
+    const tt = el('div', 'font-bold text-white leading-snug'); tt.textContent = v.title || 'Video';
+    const cr = site.creators.find(x => x.id === v.creator);
+    const sub = el('div', 'text-xs text-white/55'); sub.textContent = cr ? cr.name : '';
+    const yt = el('a', 'text-xs text-amber-400 hover:text-amber-300 font-semibold'); yt.href = 'https://www.youtube.com/watch?v=' + v.vid; yt.target = '_blank'; yt.rel = 'noopener'; yt.textContent = 'Auf YouTube öffnen →';
+    info.appendChild(tt); info.appendChild(sub); info.appendChild(yt);
+    if (isAdmin) {
+      const row = el('div', 'flex gap-2 mt-2');
+      const rn = mkBtn('Titel ändern'); rn.addEventListener('click', () => { const n = prompt('Titel:', v.title || ''); if (n == null || !n.trim()) return; v.title = n.trim().slice(0, 120); renderVideos(); saveLocal(); });
+      const dl = mkBtn('Löschen', 'px-2 py-1.5 text-[11px] font-semibold rounded bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/30');
+      dl.addEventListener('click', () => { if (!confirm('Dieses Video löschen?')) return; site.videos = site.videos.filter(x => x.id !== v.id); renderVideos(); saveLocal(); });
+      row.appendChild(rn); row.appendChild(dl); info.appendChild(row);
+    }
+    c.appendChild(th); c.appendChild(info); grid.appendChild(c);
+  });
+}
+$('yt-add').addEventListener('click', async () => {
+  site.creators = site.creators || []; site.videos = site.videos || [];
+  if (!site.creators.length) { alert('Lege zuerst mit „+ Creator“ einen Creator an.'); return; }
+  const vid = ytId(prompt('YouTube-Link des Videos:')); if (!vid) { alert('Das war kein gültiger YouTube-Link.'); return; }
+  if (site.videos.some(v => v.vid === vid)) { alert('Dieses Video ist schon eingetragen.'); return; }
+  let creator = ytFilter !== 'all' ? ytFilter : '';
+  if (!creator) {
+    const a = parseInt(prompt('Von welchem Creator? Nummer eingeben:\n' + site.creators.map((c, i) => (i + 1) + ' = ' + c.name).join('\n')), 10);
+    if (!(a >= 1 && a <= site.creators.length)) return; creator = site.creators[a - 1].id;
+  }
+  let title = '';
+  try { const o = await (await fetch('https://noembed.com/embed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + vid))).json(); title = o && o.title || ''; } catch (e) {}
+  if (!title) title = prompt('Titel des Videos:') || 'Video';
+  site.videos.push({ id: 'v' + Date.now().toString(36), vid, title: title.slice(0, 120), creator, added: Date.now() });
+  ytFilter = creator; renderVideos(); saveLocal();
+});
+
 // ================= Abstimmung =================
 let voteCache = {}, voteLoading = {};
 const voterId = (() => {
@@ -2454,7 +2563,7 @@ loadStats();
 setInterval(loadStats, 60000);
 
 // ---- Navigation: Markierung gleitet beim Scrollen von Abschnitt zu Abschnitt
-const NAV_SECTIONS = ['home', 'spieler', 'kartenvorschau', 'shop-teaser', 'event-teaser', 'bestenlisten', 'live', 'abstimmung'];
+const NAV_SECTIONS = ['home', 'spieler', 'kartenvorschau', 'shop-teaser', 'event-teaser', 'bestenlisten', 'live', 'videos', 'abstimmung'];
 let navForced = null;
 function updateNavPill() {
   const nav = $('main-nav'), pill = $('nav-pill');
@@ -2552,7 +2661,7 @@ function setCloudStatus(kind, msg) {
 }
 function normalizeSite(x) {
   x = x || {};
-  ['pois', 'shops', 'polls', 'events', 'hiddenEvents'].forEach(k => { if (!Array.isArray(x[k])) x[k] = x[k] && typeof x[k] === 'object' ? Object.values(x[k]) : []; });
+  ['pois', 'shops', 'polls', 'events', 'hiddenEvents', 'creators', 'videos'].forEach(k => { if (!Array.isArray(x[k])) x[k] = x[k] && typeof x[k] === 'object' ? Object.values(x[k]) : []; });
   if (x.players && !Array.isArray(x.players)) x.players = Object.values(x.players);
   x.shops.forEach(sh => { if (!Array.isArray(sh.images)) sh.images = sh.images ? Object.values(sh.images) : []; });
   x.polls.forEach(po => { if (!Array.isArray(po.candidates)) po.candidates = po.candidates ? Object.values(po.candidates) : []; po.candidates.forEach(c => { if (!Array.isArray(c.images)) c.images = c.images ? Object.values(c.images) : []; }); });
@@ -2667,7 +2776,7 @@ function setAdmin(on) {
   state.activeClaimId = null; state.activeTransformId = null; state.transformAction = null;
   if (on) applyLocal(); else applyData(JSON.parse(baseline));
   updateActiveClaimEditor();
-  renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents(); renderPlayers();
+  renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents(); renderVideos(); renderPlayers();
   if (started) render();
 }
 function openLogin() { codeInput.value = ''; errEl.style.display = 'none'; $('admin-key').style.display = fbKey() ? 'none' : ''; modalEl.style.display = 'flex'; setTimeout(() => codeInput.focus(), 0); }
@@ -2701,7 +2810,7 @@ applyLocal();
 renderPois();
 renderVotes();
 renderShopModal();
-renderEvents();
+renderEvents(); renderVideos();
 renderPlayers();
 document.getElementById('logo-small').src = document.getElementById('logo-big').src;
 document.getElementById('logo-shop').src = document.getElementById('logo-big').src;

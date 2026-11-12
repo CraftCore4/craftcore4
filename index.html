@@ -2286,7 +2286,7 @@ const currentPoll = () => sortedPolls()[0];
 function pollView(p) {
   const wrap = el('div', 'rounded-2xl border-2 border-amber-500/40 bg-white/5 p-5 md:p-6');
   const now = Date.now(), ended = now >= pollEnd(p), notStarted = now < pollStart(p);
-  const showResults = ended || isAdmin;
+  const showResults = !notStarted;
   if (showResults) ensureVotes(p);
   const t = tally(p);
   const head = el('div', 'flex flex-wrap items-start justify-between gap-3 mb-5');
@@ -2325,7 +2325,7 @@ function pollView(p) {
       else if (!t.ready) body.appendChild(el('div', 'text-xs text-stone-500', 'Lade Ergebnis…'));
       else {
         const n = t.counts[c.id], pct = t.total ? Math.round(n / t.total * 100) : 0;
-        const r = el('div', '', '<div class="h-2 rounded bg-stone-700 overflow-hidden"><div class="h-full bg-amber-500" style="width:' + pct + '%"></div></div><div class="text-xs text-stone-300 mt-1">' + n + ' Stimme' + (n === 1 ? '' : 'n') + ' · ' + pct + ' %' + (!ended && isAdmin ? ' <span class="text-stone-500">(nur für Admin sichtbar)</span>' : '') + '</div>');
+        const r = el('div', '', '<div class="h-2 rounded bg-stone-700 overflow-hidden"><div class="h-full bg-amber-500" style="width:' + pct + '%"></div></div><div class="text-xs text-stone-300 mt-1">' + n + ' Stimme' + (n === 1 ? '' : 'n') + ' · ' + pct + ' %' + '</div>');
         body.appendChild(r);
       }
     }

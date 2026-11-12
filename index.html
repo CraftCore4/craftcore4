@@ -153,6 +153,11 @@
   .vensar-card:hover { border-color:rgba(245,158,11,.7); transform:translateY(-2px); }
   .vensar-ico { display:inline-flex; align-items:center; justify-content:center; width:3rem; height:3rem; border-radius:.9rem; flex:none; font-size:1.3rem; color:#1c1b19; background:linear-gradient(145deg,#fcd34d,#f59e0b); }
   .vensar-go { margin-left:auto; padding:.55rem 1rem; border-radius:.7rem; background:#f59e0b; color:#1c1b19; font-weight:800; font-size:.85rem; white-space:nowrap; }
+  .car-arrow { position:absolute; top:50%; transform:translateY(-50%); width:2.2rem; height:2.2rem; border-radius:999px; display:flex; align-items:center; justify-content:center; color:#fff; background:rgba(0,0,0,.55); border:1px solid rgba(255,255,255,.25); cursor:pointer; transition:background .15s,color .15s; }
+  .car-arrow.l { left:.5rem; } .car-arrow.r { right:.5rem; }
+  .car-arrow:hover { background:rgba(245,158,11,.9); color:#1c1b19; }
+  .car-cnt { position:absolute; right:.5rem; bottom:.5rem; padding:.1rem .5rem; border-radius:999px; font-size:.7rem; font-weight:700; color:#fff; background:rgba(0,0,0,.6); }
+  .car-on { border-color:#f59e0b !important; }
   .online-pill { display:inline-flex; align-items:center; gap:.5rem; padding:.3rem .8rem; border-radius:999px; font-size:.8rem; font-weight:600; color:rgba(255,255,255,.8); background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); transition:border-color .15s,background .15s; }
   .online-pill:hover { border-color:rgba(245,158,11,.5); background:rgba(245,158,11,.1); }
 </style>
@@ -1463,6 +1468,31 @@ function nameChip(n) {
   w.append(im, t);
   return w;
 }
+const carIdx = {};
+function carousel(imgs, key) {
+  const wrap = el('div'), stage = el('div', 'relative');
+  const main = el('img', 'w-full h-52 object-cover cursor-zoom-in'); main.loading = 'lazy';
+  stage.appendChild(main);
+  const thumbs = el('div', 'grid grid-cols-4 gap-2 p-2'), ths = [];
+  let cnt = null;
+  const show = i => {
+    i = (i + imgs.length) % imgs.length; carIdx[key] = i; main.src = imgs[i];
+    if (cnt) cnt.textContent = (i + 1) + ' / ' + imgs.length;
+    ths.forEach((t, k) => t.classList.toggle('car-on', k === i));
+  };
+  main.addEventListener('click', () => openLightbox(imgs[carIdx[key] || 0]));
+  if (imgs.length > 1) {
+    [[-1, 'l', 'fa-chevron-left', 'Vorheriges Bild'], [1, 'r', 'fa-chevron-right', 'Nächstes Bild']].forEach(([d, side, ic, lbl]) => {
+      const b = el('button', 'car-arrow ' + side, '<i class="fa-solid ' + ic + '"></i>'); b.type = 'button'; b.setAttribute('aria-label', lbl);
+      b.addEventListener('click', e => { e.stopPropagation(); show((carIdx[key] || 0) + d); }); stage.appendChild(b);
+    });
+    cnt = el('div', 'car-cnt'); stage.appendChild(cnt);
+    imgs.forEach((src, k) => { const th = el('img', 'w-full h-12 object-cover rounded-lg border border-stone-700 cursor-pointer transition'); th.src = src; th.loading = 'lazy'; th.addEventListener('click', () => show(k)); ths.push(th); thumbs.appendChild(th); });
+  }
+  wrap.appendChild(stage); if (imgs.length > 1) wrap.appendChild(thumbs);
+  show(Math.min(carIdx[key] || 0, imgs.length - 1));
+  return wrap;
+}
 function gallery(arr, cols, h) {
   const g = el('div', 'grid gap-2 ' + (cols || 'grid-cols-2'));
   (arr || []).forEach(src => {
@@ -2285,10 +2315,7 @@ function pollView(p) {
     const card = el('div', 'rounded-xl overflow-hidden border border-stone-700 bg-stone-900/70 flex flex-col');
     const imgs = c.images || [];
     if (imgs.length) {
-      const main = el('img', 'w-full h-52 object-cover cursor-zoom-in'); main.src = imgs[0]; main.loading = 'lazy';
-      main.addEventListener('click', () => openLightbox(imgs[0]));
-      card.appendChild(main);
-      if (imgs.length > 1) { const g = gallery(imgs.slice(1), 'grid-cols-4', 'h-12'); g.className += ' p-2'; card.appendChild(g); }
+      card.appendChild(carousel(imgs, p.id + '|' + (c.id || c.name)));
     } else card.appendChild(el('div', 'h-32 flex items-center justify-center text-stone-600 text-sm', 'Kein Bild'));
     const body = el('div', 'p-4 flex flex-col gap-3');
     const nm = el('div', 'text-lg font-extrabold text-white'); nm.textContent = c.name || 'Bauwerk'; body.appendChild(nm);

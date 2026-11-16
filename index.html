@@ -2507,6 +2507,8 @@ const LB = {
   playtimeMin: { label: 'Spielzeit', fmt: fmtMin, icon: 'fa-clock' },
   avgHoursPerDay: { label: 'Ø pro Tag', fmt: v => (Math.round(v * 10) / 10).toLocaleString('de-DE') + ' Std/Tag', icon: 'fa-chart-line' },
   mined: { label: 'Abgebaute Blöcke', fmt: v => nf.format(v), icon: 'fa-hammer' },
+  placed: { label: 'Platzierte Blöcke', fmt: v => nf.format(v), icon: 'fa-cube' },
+  deaths: { label: 'Tode', fmt: v => nf.format(v), icon: 'fa-skull' },
   distanceM: { label: 'Strecke', fmt: fmtKm, icon: 'fa-person-walking' },
   afkMin: { label: 'AFK-Zeit', fmt: fmtMin, icon: 'fa-bed' }
 };

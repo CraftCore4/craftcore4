@@ -1998,7 +1998,7 @@ function renderPlayerModal() {
 
   if (s) {
     const g = el('div', 'grid grid-cols-2 gap-2');
-    [['fa-clock', 'Spielzeit', fmtMin(s.playtimeMin)], ['fa-hammer', 'Abgebaute Blöcke', nf.format(s.mined || 0)], ['fa-person-walking', 'Strecke', fmtKm(s.distanceM)], ['fa-bed', 'AFK-Zeit', fmtMin(s.afkMin)]].forEach(([ic, k, v]) => {
+    [['fa-clock', 'Spielzeit', fmtMin(s.playtimeMin)], ['fa-hammer', 'Abgebaute Blöcke', nf.format(s.mined || 0)], ['fa-cube', 'Platzierte Blöcke', typeof s.placed === 'number' ? nf.format(s.placed) : '–'], ['fa-skull', 'Tode', typeof s.deaths === 'number' ? nf.format(s.deaths) : '–'], ['fa-person-walking', 'Strecke', fmtKm(s.distanceM)], ['fa-bed', 'AFK-Zeit', fmtMin(s.afkMin)]].forEach(([ic, k, v]) => {
       const c = el('div', 'shop-sells'); c.style.flexDirection = 'column'; c.style.gap = '.15rem';
       c.innerHTML = '<div class="text-[10px] uppercase tracking-widest text-white/50"><i class="fa-solid ' + ic + ' mr-1" style="margin-top:0"></i>' + esc(k) + '</div><div class="text-white font-extrabold text-lg"></div>';
       c.lastChild.textContent = v; g.appendChild(c);
@@ -2485,7 +2485,7 @@ function playerBlock(n) {
   col.append(tag, st);
   if (s) {
     const g = el('div', 'grid grid-cols-2 gap-x-3 gap-y-1 text-xs');
-    [['Spielzeit', fmtMin(s.playtimeMin)], ['Blöcke', nf.format(s.mined || 0)], ['Strecke', fmtKm(s.distanceM)], ['AFK', fmtMin(s.afkMin)]].forEach(([k, v]) => {
+    [['Spielzeit', fmtMin(s.playtimeMin)], ['Abgebaut', nf.format(s.mined || 0)], ['Platziert', typeof s.placed === 'number' ? nf.format(s.placed) : '–'], ['Tode', typeof s.deaths === 'number' ? nf.format(s.deaths) : '–'], ['Strecke', fmtKm(s.distanceM)], ['AFK', fmtMin(s.afkMin)]].forEach(([k, v]) => {
       const c = el('div'); const a = el('div', 'text-[10px] uppercase tracking-widest text-stone-500'); a.textContent = k; const b = el('div', 'text-stone-200 font-semibold'); b.textContent = v; c.append(a, b); g.appendChild(c);
     });
     col.appendChild(g);

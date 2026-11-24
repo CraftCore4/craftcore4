@@ -1296,10 +1296,14 @@ let site = JSON.parse(document.getElementById('site-data').textContent);
 const snapshot = () => JSON.stringify({ c: state.claims, s: site });
 let baseline = snapshot();
 
+function renderAll() {
+  [() => renderPois(), () => renderVotes(), () => renderShopModal(), () => renderPoiModal(), () => renderEvents(), () => renderVideos(), () => renderLeaderboard(), () => renderPlayers()]
+    .forEach(f => { try { f(); } catch (e) { console.error('Anzeige-Fehler', e); } });
+}
 function applyData(d) {
   state.claims = d.c; site = d.s;
   window.renderGrid(state.claims.map(c => [c.name, c.color]));
-  renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents(); renderVideos(); renderLeaderboard(); renderPlayers();
+  renderAll();
   if (started) render();
 }
 function applyLocal() {
@@ -2175,6 +2179,12 @@ $('event-add').addEventListener('click', () => {
 });
 
 // ================= Videos =================
+function warnLocalOnly() {
+  if (isAdmin && !fbAuth && !window.__warnedLocal) {
+    window.__warnedLocal = true;
+    alert('Achtung: Du bist nur lokal angemeldet („Nur in diesem Browser“). Das, was du jetzt änderst, wird nicht für alle gespeichert und verschwindet beim Neuladen. Melde dich mit dem Admin-Passwort an, nicht mit dem Notfall-Code.');
+  }
+}
 var ytFilter = 'all';
 const ytId = u => { u = String(u || '').trim(); const m = u.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([A-Za-z0-9_-]{11})/); return m ? m[1] : (/^[A-Za-z0-9_-]{11}$/.test(u) ? u : ''); };
 function renderVideos() {
@@ -2188,6 +2198,7 @@ function renderVideos() {
   if (isAdmin) {
     const b = el('button', 'yt-chip add'); b.type = 'button'; b.textContent = '+ Creator';
     b.addEventListener('click', () => {
+      warnLocalOnly();
       const name = (prompt('Name des Creators:') || '').trim(); if (!name) return;
       const url = (prompt('Link zum YouTube-Kanal (optional):') || '').trim();
       const c = { id: 'c' + Date.now().toString(36), name: name.slice(0, 40), url: /^https?:\/\//.test(url) ? url : '' };
@@ -2236,6 +2247,7 @@ function renderVideos() {
   });
 }
 $('yt-add').addEventListener('click', async () => {
+  warnLocalOnly();
   site.creators = site.creators || []; site.videos = site.videos || [];
   if (!site.creators.length) { alert('Lege zuerst mit „+ Creator“ einen Creator an.'); return; }
   const vid = ytId(prompt('YouTube-Link des Videos:')); if (!vid) { alert('Das war kein gültiger YouTube-Link.'); return; }
@@ -2624,6 +2636,7 @@ function renderHiddenPlayers() {
   });
 }
 function addHiddenPlayer() {
+  warnLocalOnly();
   const inp = $('lb-hide-input'), n = inp.value.trim(); if (!n) return;
   site.hiddenPlayers = site.hiddenPlayers || [];
   if (!isHiddenPlayer(n)) site.hiddenPlayers.push(n.slice(0, 32));
@@ -2897,7 +2910,7 @@ function setAdmin(on) {
   state.activeClaimId = null; state.activeTransformId = null; state.transformAction = null;
   if (on) applyLocal(); else applyData(JSON.parse(baseline));
   updateActiveClaimEditor();
-  renderPois(); renderVotes(); renderShopModal(); renderPoiModal(); renderEvents(); renderVideos(); renderLeaderboard(); renderPlayers();
+  renderAll();
   if (started) render();
 }
 function openLogin() { codeInput.value = ''; errEl.style.display = 'none'; $('admin-key').style.display = fbKey() ? 'none' : ''; modalEl.style.display = 'flex'; setTimeout(() => codeInput.focus(), 0); }

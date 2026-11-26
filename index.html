@@ -9,6 +9,7 @@
 <meta property="og:title" content="CraftCore 4 · Die Karte">
 <meta property="og:description" content="Interaktive Karte, Teilnehmer, Shops, Events, Bestenlisten, Videos und Abstimmungen von CraftCore 4.">
 <meta name="twitter:card" content="summary">
+<meta name="color-scheme" content="dark">
 <link rel="preconnect" href="https://mineskin.eu">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
@@ -173,12 +174,69 @@
   #to-top:hover { background:#f59e0b; color:#1c1b19; }
   :focus-visible { outline:2px solid #f59e0b; outline-offset:2px; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+  /* ===== Qualität: Podium, Ladeanimation, Hover, Toast ===== */
+  .skel { position:relative; overflow:hidden; background:rgba(255,255,255,.06); border-radius:.6rem; }
+  .skel::after { content:''; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent); animation:skelmove 1.4s infinite; }
+  @keyframes skelmove { to { transform:translateX(100%); } }
+  .yt-card { transition:transform .2s,border-color .2s; }
+  .yt-card:not(.playing):hover { transform:translateY(-3px); border-color:rgba(245,158,11,.45); }
+  #toast { position:fixed; left:50%; bottom:calc(1.2rem + env(safe-area-inset-bottom,0px)); transform:translate(-50%,12px); z-index:60; padding:.65rem 1rem; border-radius:.8rem; background:rgba(28,27,25,.96); color:#fff; border:1px solid rgba(245,158,11,.45); font-size:.88rem; font-weight:600; box-shadow:0 10px 30px rgba(0,0,0,.45); opacity:0; pointer-events:none; transition:opacity .25s,transform .25s; max-width:90vw; text-align:center; }
+  #toast.show { opacity:1; transform:translate(-50%,0); }
+  /* ===== Großes Update ===== */
+  html { color-scheme:dark; scrollbar-color:#57534e #1c1b19; scrollbar-width:thin; }
+  ::-webkit-scrollbar { width:10px; height:10px; } ::-webkit-scrollbar-track { background:#1c1b19; } ::-webkit-scrollbar-thumb { background:#57534e; border-radius:8px; border:2px solid #1c1b19; } ::-webkit-scrollbar-thumb:hover { background:#f59e0b; }
+  ::selection { background:rgba(245,158,11,.35); color:#fff; }
+  section[id] { scroll-margin-top:4.5rem; }
+  a, button { -webkit-tap-highlight-color:transparent; }
+  .skip-link { position:absolute; left:.5rem; top:-4rem; z-index:100; background:#f59e0b; color:#1c1b19; padding:.5rem 1rem; border-radius:.5rem; font-weight:700; transition:top .15s; }
+  .skip-link:focus { top:.5rem; }
+  .pulse-dot { animation:pulsedot 1.8s infinite; }
+  @keyframes pulsedot { 0% { box-shadow:0 0 0 0 rgba(52,211,153,.55); } 70% { box-shadow:0 0 0 .4rem rgba(52,211,153,0); } 100% { box-shadow:0 0 0 0 rgba(52,211,153,0); } }
+  .map-teaser { display:grid; gap:1.5rem; grid-template-columns:1fr; }
+  @media (min-width:1024px) { .map-teaser { grid-template-columns:minmax(0,1.7fr) minmax(0,1fr); align-items:stretch; } }
+  .map-frame { position:relative; display:block; border-radius:1.25rem; overflow:hidden; border:2px solid rgba(245,158,11,.5); box-shadow:0 0 60px rgba(245,158,11,.15); aspect-ratio:728/575; background:#0f1a2b; transition:box-shadow .3s,border-color .3s; }
+  .map-frame:hover { border-color:rgba(251,191,36,.9); box-shadow:0 0 80px rgba(245,158,11,.28); }
+  .map-prev-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  #preview-svg { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+  .map-frame::after { content:''; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center,transparent 58%,rgba(10,10,10,.4)); }
+  .map-open { position:absolute; left:1rem; bottom:1rem; z-index:2; padding:.6rem 1.1rem; border-radius:999px; background:#f59e0b; color:#1c1b19; font-weight:800; font-size:.9rem; transition:background .15s,transform .15s; }
+  .map-frame:hover .map-open { background:#fbbf24; transform:translateY(-2px); }
+  .map-side { display:flex; flex-direction:column; gap:1.1rem; justify-content:center; }
+  .map-kpis { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.75rem; }
+  .map-kpi { display:flex; align-items:center; gap:.75rem; padding:.9rem 1rem; border-radius:1rem; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); }
+  .map-kpi i { color:#fbbf24; font-size:1.1rem; width:1.4rem; text-align:center; }
+  .map-kpi-n { font-weight:800; font-size:1.35rem; line-height:1.1; color:#fff; }
+  .map-kpi-l { font-size:.75rem; color:rgba(255,255,255,.55); }
+  .map-feats { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.55rem; color:rgba(255,255,255,.75); font-size:.92rem; }
+  .map-feats i { color:#fbbf24; margin-right:.6rem; }
+  .ip-pill { display:inline-flex; align-items:center; gap:.65rem; padding:.5rem 1rem; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid rgba(245,158,11,.4); color:#fde68a; cursor:pointer; transition:background .15s,border-color .15s; }
+  .ip-pill:hover { background:rgba(245,158,11,.14); border-color:rgba(245,158,11,.8); }
+  .ip-pill code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.95rem; color:#fff; }
+  .ip-pill span { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#fbbf24; }
+  .yt-new { position:absolute; left:.6rem; top:.6rem; z-index:2; background:#ef4444; color:#fff; font-size:.68rem; font-weight:800; padding:.15rem .5rem; border-radius:999px; text-transform:uppercase; letter-spacing:.04em; }
+  #cmdk-btn { position:fixed; right:1rem; bottom:calc(4.1rem + env(safe-area-inset-bottom,0px)); z-index:30; width:2.6rem; height:2.6rem; border-radius:999px; display:flex; align-items:center; justify-content:center; background:rgba(28,27,25,.92); color:#fcd34d; border:1px solid rgba(245,158,11,.4); cursor:pointer; transition:background .15s,color .15s; }
+  #cmdk-btn:hover { background:#f59e0b; color:#1c1b19; }
+  #cmdk { position:fixed; inset:0; z-index:70; background:rgba(0,0,0,.62); align-items:flex-start; justify-content:center; padding:12vh 1rem 1rem; }
+  .cmdk-box { width:100%; max-width:34rem; border-radius:1rem; background:#23211e; border:1px solid rgba(245,158,11,.35); box-shadow:0 30px 80px rgba(0,0,0,.6); overflow:hidden; }
+  .cmdk-top { display:flex; align-items:center; gap:.75rem; padding:.9rem 1rem; border-bottom:1px solid rgba(255,255,255,.1); color:#fcd34d; }
+  .cmdk-top input { flex:1; min-width:0; background:transparent; border:0; outline:0; color:#fff; font-size:1rem; }
+  .cmdk-top kbd { font-size:.7rem; padding:.1rem .4rem; border-radius:.35rem; border:1px solid rgba(255,255,255,.2); color:rgba(255,255,255,.55); }
+  #cmdk-list { max-height:min(55vh,24rem); overflow:auto; overscroll-behavior:contain; padding:.4rem; }
+  .cmdk-item { display:flex; align-items:center; gap:.75rem; width:100%; text-align:left; padding:.6rem .75rem; border-radius:.7rem; color:#e7e5e4; cursor:pointer; }
+  .cmdk-item i { width:1.2rem; text-align:center; color:#fbbf24; }
+  .cmdk-item.on, .cmdk-item:hover { background:rgba(245,158,11,.16); color:#fff; }
+  .cmdk-item small { margin-left:auto; color:rgba(255,255,255,.45); font-size:.72rem; }
+  .cmdk-empty { padding:1rem; text-align:center; color:rgba(255,255,255,.5); font-size:.9rem; }
+  @media (max-width:639px) { #lb-records > div:last-child:nth-child(odd) { grid-column:span 2; } }
+  @media (max-width:1023px) and (min-width:640px) { #lb-records > div:last-child:nth-child(3n+1) { grid-column:span 1; } }
+  @media print { #to-top, #toast, #cmdk, #cmdk-btn, .skip-link { display:none !important; } .rv { opacity:1 !important; } }
   .online-pill { display:inline-flex; align-items:center; gap:.5rem; padding:.3rem .8rem; border-radius:999px; font-size:.8rem; font-weight:600; color:rgba(255,255,255,.8); background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); transition:border-color .15s,background .15s; }
   .online-pill:hover { border-color:rgba(245,158,11,.5); background:rgba(245,158,11,.1); }
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="text-white font-sans antialiased">
+<a class="skip-link" href="#spieler">Zum Inhalt springen</a>
 <noscript><div style="padding:1rem;text-align:center;background:#7f1d1d;color:#fff;font-family:sans-serif">Diese Seite braucht JavaScript, um Karte, Stats und Abstimmungen anzuzeigen.</div></noscript>
 <div id="home">
 
@@ -212,6 +270,11 @@
       <a href="#spieler" class="px-6 py-3 rounded-full border border-white/20 hover:bg-white/10 font-bold transition">Alle Teilnehmer</a>
     </div>
     <div id="hero-online" class="mt-6 text-sm text-white/70 min-h-[1.5rem]"></div>
+    <div id="hero-ip" class="mt-3 flex flex-wrap justify-center items-center gap-2"></div>
+    <form id="ip-form" class="admin-only mt-3 flex flex-wrap justify-center gap-2">
+      <input id="ip-input" type="text" maxlength="60" placeholder="Server-Adresse für die Startseite" autocomplete="off" class="px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-white text-sm outline-none focus:border-amber-500/60" style="min-width:15rem">
+      <button type="submit" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold">Speichern</button>
+    </form>
   </div>
 </section>
 
@@ -244,11 +307,22 @@
 <section id="kartenvorschau" class="max-w-6xl mx-auto px-4 pb-24">
   <h2 class="text-3xl md:text-4xl font-extrabold sec-title"><span class="sec-ico"><i class="fa-solid fa-compass"></i></span>Die Karte</h2>
   <p class="text-white/60 mt-2 mb-8">Zoomen, verschieben und alle Gebiete direkt auf der Weltkarte entdecken.</p>
-  <a href="#app" class="group block relative rounded-2xl overflow-hidden border-2 border-amber-500/50 shadow-[0_0_60px_rgba(245,158,11,.15)]">
-    <img id="preview" src="" alt="Weltkarte von CraftCore 4" class="w-full max-h-[560px] object-cover transition duration-500 group-hover:scale-105">
-    <div class="absolute inset-0 bg-gradient-to-t from-[#1c1b19] via-transparent to-transparent"></div>
-    <span class="absolute bottom-6 left-6 px-5 py-3 rounded-full bg-amber-500 text-black group-hover:bg-amber-400 font-bold transition">Karte öffnen →</span>
-  </a>
+  <div class="map-teaser">
+    <a href="#app" class="map-frame" aria-label="Interaktive Karte öffnen">
+      <img id="preview" src="" alt="Weltkarte von CraftCore 4" class="map-prev-img" decoding="async">
+      <svg id="preview-svg" viewBox="-179.5 -51.9 1827.6 1443.5" preserveAspectRatio="none" aria-hidden="true"><g id="preview-polys"></g></svg>
+      <span class="map-open">Karte öffnen <i class="fa-solid fa-arrow-right"></i></span>
+    </a>
+    <div class="map-side">
+      <div id="map-kpis" class="map-kpis"></div>
+      <ul class="map-feats">
+        <li><i class="fa-solid fa-magnifying-glass-plus"></i>Mit Mausrad oder Fingern zoomen und verschieben</li>
+        <li><i class="fa-solid fa-flag"></i>Gebiete anklicken und Infos dazu ansehen</li>
+        <li><i class="fa-solid fa-location-dot"></i>Orte auf der Karte entdecken</li>
+      </ul>
+      <a href="#app" class="px-6 py-3 rounded-full bg-amber-500 text-black hover:bg-amber-400 font-bold transition text-center">Interaktive Karte öffnen →</a>
+    </div>
+  </div>
 </section>
 
 <section id="shop-teaser" class="max-w-6xl mx-auto px-4 pb-24">
@@ -292,9 +366,21 @@
     </div>
     <div id="lb-hidden-list" class="flex flex-wrap gap-2 mt-3"></div>
   </div>
+  <div id="lb-records" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6"></div>
   <div id="lb-total" class="flex flex-wrap gap-2 mb-5"></div>
   <div id="lb-tabs" class="flex flex-wrap gap-2 mb-6"></div>
   <div id="lb-box" class="rounded-2xl border border-white/10 bg-white/5 overflow-hidden"></div>
+  <details id="me-card" class="mt-5 rounded-xl border border-white/10 bg-white/5">
+    <summary class="cursor-pointer select-none px-4 py-3 text-sm font-bold text-white"><i class="fa-solid fa-user-check text-amber-400 mr-2"></i><span id="me-summary">Mein Rang anzeigen</span></summary>
+    <div class="px-4 pb-4">
+      <form id="me-form" class="flex flex-wrap items-center gap-2">
+        <input id="me-input" type="text" maxlength="32" placeholder="Dein Minecraft-Name" autocomplete="off" aria-label="Dein Minecraft-Name" class="px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-white text-sm outline-none focus:border-amber-500/60" style="min-width:12rem">
+        <button type="submit" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold">Anzeigen</button>
+        <button id="me-clear" type="button" class="px-3 py-2 rounded-lg text-sm text-white/60 hover:text-white" style="display:none">Zurücksetzen</button>
+      </form>
+      <div id="me-ranks" class="flex flex-wrap gap-2 mt-3"></div>
+    </div>
+  </details>
 </section>
 
 <section id="live" class="max-w-6xl mx-auto px-4 pb-24">
@@ -317,7 +403,21 @@
       <h2 class="text-3xl md:text-4xl font-extrabold sec-title"><span class="sec-ico"><i class="fa-brands fa-youtube"></i></span>Videos</h2>
       <p class="text-white/60 mt-2">Videos von Content Creatern über CraftCore 4.</p>
     </div>
-    <button id="yt-add" type="button" class="admin-only px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold whitespace-nowrap">+ Video hinzufügen</button>
+  </div>
+  <div class="admin-only mb-6 grid md:grid-cols-2 gap-4">
+    <form id="yt-creator-form" class="rounded-xl border border-white/10 bg-white/5 p-4 flex flex-col gap-2">
+      <div class="text-sm font-bold text-white">Creator hinzufügen</div>
+      <input id="yt-c-name" type="text" maxlength="40" placeholder="Name des Creators" autocomplete="off" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-white text-sm outline-none focus:border-amber-500/60">
+      <input id="yt-c-url" type="url" placeholder="Link zum YouTube-Kanal (optional)" autocomplete="off" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-white text-sm outline-none focus:border-amber-500/60">
+      <button type="submit" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold disabled:opacity-50">Creator speichern</button>
+    </form>
+    <form id="yt-video-form" class="rounded-xl border border-white/10 bg-white/5 p-4 flex flex-col gap-2">
+      <div class="text-sm font-bold text-white">Video hinzufügen</div>
+      <select id="yt-v-creator" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-white text-sm outline-none focus:border-amber-500/60"></select>
+      <input id="yt-v-url" type="text" placeholder="YouTube-Link des Videos" autocomplete="off" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-white text-sm outline-none focus:border-amber-500/60">
+      <input id="yt-v-title" type="text" maxlength="120" placeholder="Titel (leer lassen = automatisch)" autocomplete="off" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-white text-sm outline-none focus:border-amber-500/60">
+      <button type="submit" class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold disabled:opacity-50">Video speichern</button>
+    </form>
   </div>
   <div id="yt-chips" class="flex flex-wrap gap-2 mb-4"></div>
   <div id="yt-bar" class="flex flex-wrap items-center gap-3 mb-4"></div>
@@ -687,6 +787,15 @@
   window.renderGrid = () => { if (typeof renderPlayers === 'function') renderPlayers(); };
 })();
 </script>
+<button id="to-top" type="button" aria-label="Nach oben"><i class="fa-solid fa-arrow-up"></i></button>
+<div id="toast" role="status" aria-live="polite"></div>
+<button id="cmdk-btn" type="button" aria-label="Suche öffnen (Strg+K)" title="Suche (Strg+K)"><i class="fa-solid fa-magnifying-glass"></i></button>
+<div id="cmdk" style="display:none" role="dialog" aria-modal="true" aria-label="Suche">
+  <div class="cmdk-box">
+    <div class="cmdk-top"><i class="fa-solid fa-magnifying-glass"></i><input id="cmdk-input" type="text" placeholder="Suche nach Spielern, Shops, Events, Creatorn, Bereichen …" autocomplete="off"><kbd>Esc</kbd></div>
+    <div id="cmdk-list" role="listbox"></div>
+  </div>
+</div>
 <script>
 
         let isAdmin = false;
@@ -1289,7 +1398,7 @@ function route() {
   if (!open && !shops && !evs && typeof updateNavPill === 'function') requestAnimationFrame(updateNavPill);
 }
 window.addEventListener('hashchange', route);
-document.getElementById('preview').src = document.getElementById('map-image').src;
+(function () { const p = document.getElementById('preview'); p.onerror = () => { p.onerror = null; p.src = document.getElementById('map-image').src; }; p.src = 'karte-vorschau.webp'; })();
 // Daten: Gebiete + Orte/Shops/Abstimmungen. Eigene Änderungen (nur Admin) werden im Browser zwischengespeichert.
 const LS_KEY = 'craftcore4_data_v2';
 let site = JSON.parse(document.getElementById('site-data').textContent);
@@ -1297,7 +1406,7 @@ const snapshot = () => JSON.stringify({ c: state.claims, s: site });
 let baseline = snapshot();
 
 function renderAll() {
-  [() => renderPois(), () => renderVotes(), () => renderShopModal(), () => renderPoiModal(), () => renderEvents(), () => renderVideos(), () => renderLeaderboard(), () => renderPlayers()]
+  [() => renderPois(), () => renderVotes(), () => renderShopModal(), () => renderPoiModal(), () => renderEvents(), () => renderVideos(), () => renderLeaderboard(), () => renderPlayers(), () => renderMapPreview(), () => renderServerIp(), () => renderNow(), () => renderMe()]
     .forEach(f => { try { f(); } catch (e) { console.error('Anzeige-Fehler', e); } });
 }
 function applyData(d) {
@@ -2034,6 +2143,7 @@ function renderPlayerModal() {
       c.lastChild.textContent = v; g.appendChild(c);
     });
     body.appendChild(g);
+    body.appendChild(rankChips(n));
     if (s.twitch && /^[A-Za-z0-9_]{1,25}$/.test(s.twitch)) {
       const a = el('a', 'inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-bold ' + (live ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-purple-600/80 hover:bg-purple-500 text-white'));
       a.href = 'https://twitch.tv/' + s.twitch; a.target = '_blank'; a.rel = 'noopener';
@@ -2179,6 +2289,11 @@ $('event-add').addEventListener('click', () => {
 });
 
 // ================= Videos =================
+function toast(msg) {
+  const e = $('toast'); if (!e) return;
+  e.textContent = msg; e.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => e.classList.remove('show'), 2600);
+}
 function warnLocalOnly() {
   if (isAdmin && !fbAuth && !window.__warnedLocal) {
     window.__warnedLocal = true;
@@ -2195,16 +2310,11 @@ function renderVideos() {
   const chip = (label, id) => { const b = el('button', 'yt-chip' + (ytFilter === id ? ' on' : '')); b.type = 'button'; b.textContent = label; b.addEventListener('click', () => { ytFilter = id; renderVideos(); }); chips.appendChild(b); };
   chip('Alle · ' + site.videos.length, 'all');
   site.creators.forEach(c => chip(c.name + ' · ' + site.videos.filter(v => v.creator === c.id).length, c.id));
-  if (isAdmin) {
-    const b = el('button', 'yt-chip add'); b.type = 'button'; b.textContent = '+ Creator';
-    b.addEventListener('click', () => {
-      warnLocalOnly();
-      const name = (prompt('Name des Creators:') || '').trim(); if (!name) return;
-      const url = (prompt('Link zum YouTube-Kanal (optional):') || '').trim();
-      const c = { id: 'c' + Date.now().toString(36), name: name.slice(0, 40), url: /^https?:\/\//.test(url) ? url : '' };
-      site.creators.push(c); ytFilter = c.id; renderVideos(); saveLocal();
-    });
-    chips.appendChild(b);
+  const sel = $('yt-v-creator');
+  if (sel) {
+    const keep = sel.value; sel.innerHTML = '';
+    site.creators.forEach(c => { const o = el('option'); o.value = c.id; o.textContent = c.name; sel.appendChild(o); });
+    sel.value = ytFilter !== 'all' ? ytFilter : (site.creators.some(c => c.id === keep) ? keep : (site.creators[0] ? site.creators[0].id : ''));
   }
   const cur = site.creators.find(c => c.id === ytFilter);
   if (cur) {
@@ -2217,6 +2327,10 @@ function renderVideos() {
     }
   }
   const list = site.videos.filter(v => ytFilter === 'all' || v.creator === ytFilter).sort((a, b) => (b.added || 0) - (a.added || 0));
+  if (!list.length && dbUrl() && cloudUpdated == null && performance.now() < 8000) {
+    for (let i = 0; i < 3; i++) grid.appendChild(el('div', 'yt-card', '<div class="skel" style="aspect-ratio:16/9;border-radius:0"></div><div class="p-3"><div class="skel" style="height:1rem;width:75%"></div><div class="skel" style="height:.7rem;width:35%;margin-top:.6rem"></div></div>'));
+    return;
+  }
   if (!list.length) {
     const e = el('div', 'shop-empty', '<i class="fa-brands fa-youtube"></i><div class="font-bold text-white text-lg mt-2"></div><div class="mt-1"></div>');
     e.children[1].textContent = 'Noch keine Videos'; e.children[2].textContent = isAdmin ? 'Füge Creator und Videos mit den Buttons oben hinzu.' : 'Schau bald wieder vorbei.';
@@ -2226,14 +2340,15 @@ function renderVideos() {
     const c = el('div', 'yt-card');
     const th = el('div', 'yt-thumb', '<span class="yt-play"><i class="fa-solid fa-play"></i></span>');
     th.style.backgroundImage = 'url(https://img.youtube.com/vi/' + v.vid + '/hqdefault.jpg)';
-    th.setAttribute('role', 'button'); th.tabIndex = 0;
-    const play = () => { th.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + v.vid + '?autoplay=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'; };
+    th.setAttribute('role', 'button'); th.tabIndex = 0; th.setAttribute('aria-label', 'Video abspielen: ' + (v.title || 'Video'));
+    if (v.added && Date.now() - v.added < 6048e5) th.appendChild(el('span', 'yt-new', 'Neu'));
+    const play = () => { c.classList.add('playing'); th.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + v.vid + '?autoplay=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>'; };
     th.addEventListener('click', play, { once: true });
     th.addEventListener('keydown', e => { if (e.key === 'Enter') play(); }, { once: true });
     const info = el('div', 'p-3 flex flex-col gap-1');
     const tt = el('div', 'font-bold text-white leading-snug'); tt.textContent = v.title || 'Video';
     const cr = site.creators.find(x => x.id === v.creator);
-    const sub = el('div', 'text-xs text-white/55'); sub.textContent = cr ? cr.name : '';
+    const sub = el('div', 'text-xs text-white/55'); sub.textContent = (cr ? cr.name : '') + (v.added ? ' · ' + agoText(v.added) : '');
     const yt = el('a', 'text-xs text-amber-400 hover:text-amber-300 font-semibold'); yt.href = 'https://www.youtube.com/watch?v=' + v.vid; yt.target = '_blank'; yt.rel = 'noopener'; yt.textContent = 'Auf YouTube öffnen →';
     info.appendChild(tt); info.appendChild(sub); info.appendChild(yt);
     if (isAdmin) {
@@ -2246,23 +2361,190 @@ function renderVideos() {
     c.appendChild(th); c.appendChild(info); grid.appendChild(c);
   });
 }
-$('yt-add').addEventListener('click', async () => {
-  warnLocalOnly();
-  site.creators = site.creators || []; site.videos = site.videos || [];
-  if (!site.creators.length) { alert('Lege zuerst mit „+ Creator“ einen Creator an.'); return; }
-  const vid = ytId(prompt('YouTube-Link des Videos:')); if (!vid) { alert('Das war kein gültiger YouTube-Link.'); return; }
-  if (site.videos.some(v => v.vid === vid)) { alert('Dieses Video ist schon eingetragen.'); return; }
-  let creator = ytFilter !== 'all' ? ytFilter : '';
-  if (!creator) {
-    const a = parseInt(prompt('Von welchem Creator? Nummer eingeben:\n' + site.creators.map((c, i) => (i + 1) + ' = ' + c.name).join('\n')), 10);
-    if (!(a >= 1 && a <= site.creators.length)) return; creator = site.creators[a - 1].id;
-  }
-  let title = '';
-  try { const o = await (await fetch('https://noembed.com/embed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + vid))).json(); title = o && o.title || ''; } catch (e) {}
-  if (!title) title = prompt('Titel des Videos:') || 'Video';
-  site.videos.push({ id: 'v' + Date.now().toString(36), vid, title: title.slice(0, 120), creator, added: Date.now() });
-  ytFilter = creator; renderVideos(); saveLocal();
+$('yt-creator-form').addEventListener('submit', e => {
+  e.preventDefault(); warnLocalOnly();
+  const name = $('yt-c-name').value.trim(); if (!name) return;
+  const url = $('yt-c-url').value.trim();
+  site.creators = site.creators || [];
+  if (site.creators.some(c => c.name.toLowerCase() === name.toLowerCase())) { toast('Diesen Creator gibt es schon.'); return; }
+  const c = { id: 'c' + Date.now().toString(36), name: name.slice(0, 40), url: /^https?:\/\//.test(url) ? url : '' };
+  site.creators.push(c); ytFilter = c.id; e.target.reset(); renderVideos(); saveLocal(); toast('Creator „' + c.name + '“ hinzugefügt');
 });
+$('yt-video-form').addEventListener('submit', async e => {
+  e.preventDefault(); warnLocalOnly();
+  const form = e.target, btn = form.querySelector('button[type=submit]');
+  site.creators = site.creators || []; site.videos = site.videos || [];
+  const creator = $('yt-v-creator').value;
+  if (!creator) { toast('Lege zuerst einen Creator an.'); return; }
+  const vid = ytId($('yt-v-url').value); if (!vid) { toast('Das ist kein gültiger YouTube-Link.'); return; }
+  if (site.videos.some(v => v.vid === vid)) { toast('Dieses Video ist schon eingetragen.'); return; }
+  let title = $('yt-v-title').value.trim();
+  btn.disabled = true;
+  if (!title) { try { const o = await (await fetch('https://noembed.com/embed?url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + vid))).json(); title = (o && o.title) || ''; } catch (err) { /* Titel bleibt leer */ } }
+  btn.disabled = false;
+  site.videos.push({ id: 'v' + Date.now().toString(36), vid, title: (title || 'Video').slice(0, 120), creator, added: Date.now() });
+  ytFilter = creator; form.reset(); renderVideos(); saveLocal(); toast('Video hinzugefügt');
+});
+setTimeout(() => renderVideos(), 8200);
+
+// ================= Zähler-Animation =================
+const COUNTED = new Set();
+function countTo(node, value, key) {
+  const fin = nf.format(value);
+  if (COUNTED.has(key) || !isFinite(value) || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) { node.textContent = fin; return; }
+  COUNTED.add(key);
+  const t0 = performance.now(), dur = 900;
+  const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); node.textContent = nf.format(Math.round(value * e)); if (k < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+
+// ================= Jetzt gerade =================
+function renderNow() {
+  const btn = $('player-online-btn'); if (!btn || !btn.lastChild) return;
+  const online = serverFresh() ? Object.values(stats.players || {}).filter(p => p && p.online && p.name).length : 0;
+  btn.lastChild.nodeValue = 'Nur Online' + (stats.loaded && online ? ' · ' + online : '');
+}
+setInterval(renderNow, 30000);
+
+// ================= Karten-Teaser =================
+function renderMapPreview() {
+  const g = $('preview-polys'); if (!g) return;
+  g.innerHTML = '';
+  const claims = state.claims || [];
+  claims.forEach(c => {
+    if (!c || !Array.isArray(c.points) || c.points.length < 3) return;
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'polygon'), col = c.color || '#f59e0b';
+    p.setAttribute('points', c.points.map(q => q.join(',')).join(' '));
+    p.setAttribute('fill', col); p.setAttribute('fill-opacity', String(Math.max(0.22, Math.min(0.5, +c.opacity || 0.3))));
+    p.setAttribute('stroke', col); p.setAttribute('stroke-width', '1.5'); p.setAttribute('vector-effect', 'non-scaling-stroke');
+    g.appendChild(p);
+  });
+  const k = $('map-kpis'); if (!k) return;
+  k.innerHTML = '';
+  [['fa-flag', claims.length, 'Gebiete'], ['fa-location-dot', (site.pois || []).length, 'Orte'], ['fa-store', (site.shops || []).length, 'Shops'], ['fa-users', playerList().length, 'Teilnehmer']].forEach(([ic, n, l]) => {
+    if (!n) return;
+    const d = el('div', 'map-kpi', '<i class="fa-solid ' + ic + '"></i><div><div class="map-kpi-n"></div><div class="map-kpi-l">' + l + '</div></div>');
+    countTo(d.querySelector('.map-kpi-n'), n, 'kpi-' + l); k.appendChild(d);
+  });
+}
+
+// ================= Server-Adresse =================
+function renderServerIp() {
+  const box = $('hero-ip'); if (!box) return;
+  box.innerHTML = '';
+  const ip = String(site.serverIp || '').trim();
+  const inp = $('ip-input'); if (inp && document.activeElement !== inp) inp.value = ip;
+  if (!ip) return;
+  const pill = el('button', 'ip-pill', '<i class="fa-solid fa-server"></i><code></code><span>Kopieren</span>'); pill.type = 'button'; pill.title = 'Zum Kopieren klicken';
+  pill.querySelector('code').textContent = ip;
+  pill.addEventListener('click', async () => { try { await navigator.clipboard.writeText(ip); toast('Server-Adresse kopiert'); } catch (e) { window.prompt('Server-Adresse:', ip); } });
+  box.appendChild(pill);
+}
+$('ip-form').addEventListener('submit', e => {
+  e.preventDefault(); warnLocalOnly();
+  site.serverIp = $('ip-input').value.trim().slice(0, 60);
+  renderServerIp(); saveLocal(); toast(site.serverIp ? 'Server-Adresse gespeichert' : 'Server-Adresse entfernt');
+});
+
+// ================= Mein Rang =================
+const ME_KEY = 'cc4_me';
+const getMe = () => { try { return localStorage.getItem(ME_KEY) || ''; } catch (e) { return ''; } };
+const setMe = v => { try { v ? localStorage.setItem(ME_KEY, v) : localStorage.removeItem(ME_KEY); } catch (e) { /* Speicher gesperrt */ } };
+const isMe = n => { const m = getMe(); return !!m && hideKey(m) === hideKey(n); };
+function ranksOf(name) {
+  const ps = Object.values(stats.players || {}).filter(p => p && p.name && !isHiddenPlayer(p.name));
+  const me = ps.find(p => hideKey(p.name) === hideKey(name));
+  if (!me) return null;
+  const out = [];
+  Object.keys(LB).forEach(k => {
+    if (k === 'afkMin' || typeof me[k] !== 'number') return;
+    const pool = ps.filter(p => typeof p[k] === 'number');
+    out.push({ icon: LB[k].icon, label: LB[k].label, rank: 1 + pool.filter(p => p[k] > me[k]).length, total: pool.length, text: LB[k].fmt(me[k]) });
+  });
+  return out;
+}
+function rankChip(x) {
+  const c = el('span', 'ev-chip', '<i class="fa-solid ' + x.icon + '"></i>');
+  c.append(' ' + x.label + ' ');
+  const b = el('b', 'text-amber-300'); b.textContent = '#' + x.rank; c.appendChild(b);
+  c.append(' von ' + x.total); c.title = x.text; return c;
+}
+function rankChips(name) {
+  const box = el('div', 'mt-4'), r = ranksOf(name);
+  if (!r || !r.length) return box;
+  box.appendChild(el('div', 'text-[10px] uppercase tracking-widest text-white/50 mb-2', 'Platzierungen'));
+  const g = el('div', 'flex flex-wrap gap-2'); r.forEach(x => g.appendChild(rankChip(x))); box.appendChild(g);
+  return box;
+}
+function renderMe() {
+  const out = $('me-ranks'); if (!out) return;
+  const me = getMe(), inp = $('me-input');
+  if (inp && document.activeElement !== inp) inp.value = me;
+  const sm = $('me-summary'); if (sm) sm.textContent = me ? 'Mein Rang: ' + me : 'Mein Rang anzeigen';
+  const card = $('me-card'); if (card && me && !window.__meOpened) { card.open = true; window.__meOpened = true; }
+  $('me-clear').style.display = me ? '' : 'none';
+  out.innerHTML = '';
+  const note = txt => out.appendChild(el('span', 'text-xs text-white/50', '')).textContent = txt;
+  if (!me) { note('Trag deinen Minecraft-Namen ein und sieh, auf welchem Platz du in den Bestenlisten stehst.'); return; }
+  if (!stats.loaded) { note('Stats werden geladen …'); return; }
+  const r = ranksOf(me);
+  if (!r) { note('Zu „' + me + '“ gibt es noch keine Stats.'); return; }
+  r.forEach(x => out.appendChild(rankChip(x)));
+}
+$('me-form').addEventListener('submit', e => { e.preventDefault(); const v = $('me-input').value.trim().slice(0, 32); setMe(v); renderMe(); renderLeaderboard(); toast(v ? 'Gespeichert: ' + v : 'Zurückgesetzt'); });
+$('me-clear').addEventListener('click', () => { setMe(''); $('me-input').value = ''; renderMe(); renderLeaderboard(); });
+
+// ================= Suche (Strg+K oder /) =================
+(function () {
+  const box = $('cmdk'), inp = $('cmdk-input'), list = $('cmdk-list');
+  const SECS = [['Karte', 'kartenvorschau', 'fa-solid fa-compass'], ['Teilnehmer', 'spieler', 'fa-solid fa-users'], ['Shops', 'shop-teaser', 'fa-solid fa-store'], ['Events', 'event-teaser', 'fa-solid fa-calendar-days'], ['Bestenlisten', 'bestenlisten', 'fa-solid fa-trophy'], ['Live', 'live', 'fa-solid fa-tower-broadcast'], ['Videos', 'videos', 'fa-brands fa-youtube'], ['Abstimmung', 'abstimmung', 'fa-solid fa-check-to-slot']];
+  let items = [], sel = 0, lastFocus = null;
+  const isOpen = () => box.style.display !== 'none';
+  const close = () => { box.style.display = 'none'; if (lastFocus && lastFocus.focus) lastFocus.focus(); };
+  const go = id => {
+    close();
+    if (location.hash) { history.pushState(null, '', location.pathname + location.search); route(); }
+    const e = document.getElementById(id); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  function build(q) {
+    q = q.trim().toLowerCase(); const out = [];
+    SECS.forEach(([l, id, ic]) => { if (!q || l.toLowerCase().includes(q)) out.push({ ic, label: l, tag: 'Bereich', run: () => go(id) }); });
+    if (q) {
+      playerList().filter(n => n.toLowerCase().includes(q)).slice(0, 6).forEach(n => out.push({ ic: 'fa-solid fa-user', label: n, tag: 'Spieler', run: () => { close(); plOpen = n; renderPlayerModal(); } }));
+      (site.shops || []).filter(s => ((s.name || '') + ' ' + (s.owner || '')).toLowerCase().includes(q)).slice(0, 4).forEach(s => out.push({ ic: 'fa-solid fa-store', label: s.name || 'Shop', tag: 'Shop', run: () => { close(); location.hash = '#shops'; } }));
+      (site.events || []).filter(e => ((e.title || '') + ' ' + (e.host || '')).toLowerCase().includes(q)).slice(0, 3).forEach(e => out.push({ ic: 'fa-solid fa-calendar-days', label: e.title || 'Event', tag: 'Event', run: () => { close(); location.hash = '#events'; } }));
+      (site.creators || []).filter(c => c.name.toLowerCase().includes(q)).slice(0, 4).forEach(c => out.push({ ic: 'fa-brands fa-youtube', label: c.name, tag: 'Creator', run: () => { ytFilter = c.id; renderVideos(); go('videos'); } }));
+    }
+    return out.slice(0, 14);
+  }
+  function draw() {
+    list.innerHTML = '';
+    if (!items.length) { list.appendChild(el('div', 'cmdk-empty', 'Nichts gefunden.')); return; }
+    items.forEach((it, i) => {
+      const b = el('button', 'cmdk-item' + (i === sel ? ' on' : ''), '<i class="' + it.ic + '"></i><span></span><small></small>'); b.type = 'button';
+      b.children[1].textContent = it.label; b.children[2].textContent = it.tag;
+      b.addEventListener('click', () => it.run());
+      b.addEventListener('mousemove', () => { if (sel !== i) { sel = i; draw(); } });
+      list.appendChild(b);
+    });
+    const on = list.querySelector('.on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest' });
+  }
+  function open() { lastFocus = document.activeElement; box.style.display = 'flex'; inp.value = ''; items = build(''); sel = 0; draw(); setTimeout(() => inp.focus(), 0); }
+  inp.addEventListener('input', () => { items = build(inp.value); sel = 0; draw(); });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); if (items.length) { sel = (sel + 1) % items.length; draw(); } }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); if (items.length) { sel = (sel - 1 + items.length) % items.length; draw(); } }
+    else if (e.key === 'Enter') { e.preventDefault(); if (items[sel]) items[sel].run(); }
+  });
+  box.addEventListener('mousedown', e => { if (e.target === box) close(); });
+  $('cmdk-btn').addEventListener('click', open);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && isOpen()) { close(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); isOpen() ? close() : open(); return; }
+    const a = document.activeElement, tag = (a && a.tagName) || '';
+    if (e.key === '/' && !isOpen() && !/INPUT|TEXTAREA|SELECT/.test(tag) && !(a && a.isContentEditable)) { e.preventDefault(); open(); }
+  });
+})();
 
 // ================= Abstimmung =================
 let voteCache = {}, voteLoading = {};
@@ -2503,7 +2785,7 @@ const pkey = n => String(n).trim().toLowerCase().replace(/[.#$\[\]\/]/g, '_');
 const serverFresh = () => !!(stats.server && stats.server.updated && Date.now() - stats.server.updated < 4 * 60 * 1000);
 const statOf = n => stats.players[pkey(n)] || null;
 const isOnline = n => { const s = statOf(n); return !!(s && s.online && serverFresh()); };
-function fmtMin(min) { min = Math.round(min || 0); const hh = Math.floor(min / 60), m = min % 60; if (hh >= 48) return nf.format(hh) + ' Std'; return hh ? hh + ' Std ' + m + ' Min' : m + ' Min'; }
+function fmtMin(min) { min = Math.round(min || 0); const hh = Math.floor(min / 60), m = min % 60; if (hh >= 100) return nf.format(hh) + ' Std'; return hh ? hh + ' Std ' + m + ' Min' : m + ' Min'; }
 const fmtKm = m => nf.format(Math.round((m || 0) / 100) / 10) + ' km';
 function agoText(ts) {
   const m = Math.floor((Date.now() - ts) / 60000);
@@ -2570,6 +2852,27 @@ var lbAll = false;
 function renderLeaderboard() {
   const box = $('lb-box'), tabs = $('lb-tabs'); if (!box) return;
   renderHiddenPlayers();
+  const rec = $('lb-records');
+  if (rec) {
+    rec.innerHTML = '';
+    const rp = Object.values(stats.players || {}).filter(p => p && p.name && !isHiddenPlayer(p.name));
+    if (stats.loaded) [
+      ['playtimeMin', 'fa-clock', 'Vielspieler', v => fmtMin(v)],
+      ['mined', 'fa-hammer', 'Bergmann', v => nf.format(v) + ' Blöcke'],
+      ['placed', 'fa-cube', 'Baumeister', v => nf.format(v) + ' Blöcke'],
+      ['distanceM', 'fa-person-walking', 'Weitläufer', v => fmtKm(v)],
+      ['deaths', 'fa-skull', 'Pechvogel', v => nf.format(v) + ' Tode']
+    ].forEach(([k, ic, title, f]) => {
+      const best = rp.filter(p => typeof p[k] === 'number' && p[k] > 0).sort((a, b) => b[k] - a[k])[0]; if (!best) return;
+      const card = el('div', 'rounded-xl border border-white/10 bg-white/5 p-3 flex items-center gap-2.5 min-w-0');
+      const im = el('img', 'w-10 h-10 rounded shrink-0'); im.src = headUrl(best.name); im.alt = ''; im.style.imageRendering = 'pixelated'; im.onerror = () => { im.style.visibility = 'hidden'; };
+      const col = el('div', 'min-w-0');
+      const tt = el('div', 'text-[11px] uppercase tracking-wider text-amber-400 font-bold', '<i class="fa-solid ' + ic + ' mr-1"></i>' + title);
+      const nm = el('div', 'font-bold text-white truncate'); nm.textContent = best.name;
+      const vl = el('div', 'text-xs text-white/60'); vl.textContent = f(best[k]);
+      col.append(tt, nm, vl); card.append(im, col); rec.appendChild(card);
+    });
+  }
   const tot = $('lb-total');
   if (tot) {
     tot.innerHTML = '';
@@ -2604,8 +2907,10 @@ function renderLeaderboard() {
     const rank = el('div', 'w-8 text-center font-extrabold ' + (medal[i] || 'text-white/40'), i < 3 ? '<i class="fa-solid fa-medal"></i>' : String(i + 1));
     const im = el('img', 'w-9 h-9 rounded'); im.src = headUrl(p.name); im.style.imageRendering = 'pixelated'; im.onerror = () => { im.style.visibility = 'hidden'; };
     const mid = el('div', 'min-w-0 flex-1');
-    const nm = el('div', 'font-bold flex items-center gap-2'); const ns = el('span'); ns.textContent = p.name; nm.appendChild(ns);
+    const nm = el('div', 'font-bold flex items-center gap-2'); const ns = el('span', 'truncate'); ns.textContent = p.name; nm.appendChild(ns);
     if (isOnline(p.name)) nm.appendChild(el('span', 'w-2 h-2 rounded-full bg-emerald-400'));
+    if (isMe(p.name)) nm.appendChild(el('span', 'text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-500 text-black', 'Du'));
+    r.title = p.name + ': ' + LB[lbMetric].fmt(p[lbMetric]);
     const bar = el('div', 'mt-1 h-1.5 rounded bg-white/10 overflow-hidden', '<div class="h-full bg-amber-500" style="width:' + Math.max(2, Math.round(p[lbMetric] / max * 100)) + '%"></div>');
     mid.append(nm, bar);
     const val = el('div', 'text-right font-extrabold text-amber-300 whitespace-nowrap'); val.textContent = LB[lbMetric].fmt(p[lbMetric]);
@@ -2640,7 +2945,7 @@ function addHiddenPlayer() {
   const inp = $('lb-hide-input'), n = inp.value.trim(); if (!n) return;
   site.hiddenPlayers = site.hiddenPlayers || [];
   if (!isHiddenPlayer(n)) site.hiddenPlayers.push(n.slice(0, 32));
-  inp.value = ''; saveLocal(); renderLeaderboard();
+  inp.value = ''; saveLocal(); renderLeaderboard(); toast('„' + n + '“ wird nicht mehr in den Bestenlisten angezeigt');
 }
 $('lb-hide-add').addEventListener('click', addHiddenPlayer);
 $('lb-hide-input').addEventListener('keydown', e => { if (e.key === 'Enter') addHiddenPlayer(); });
@@ -2682,9 +2987,10 @@ function renderHeroOnline() {
   e.innerHTML = '';
   const on = serverFresh() ? Object.values(stats.players || {}).filter(p => p && p.online && p.name).length : 0;
   document.title = (on ? '(' + on + ' online) ' : '') + BASE_TITLE;
+  renderNow(); renderMe();
   if (!serverFresh()) return;
   const ls = liveStreams().length;
-  e.innerHTML = '<a href="#spieler" class="online-pill"><span class="w-2 h-2 rounded-full bg-emerald-400"></span><span></span></a>';
+  e.innerHTML = '<a href="#spieler" class="online-pill"><span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span><span></span></a>';
   const n = Object.values(stats.players || {}).filter(p => p && p.online && p.name).length;
   e.querySelector('a span:last-child').textContent = n + ' Online' + (ls ? ' · ' + ls + ' live auf Twitch' : '');
 }
@@ -2945,13 +3251,15 @@ renderPois();
 renderVotes();
 renderShopModal();
 renderEvents(); renderVideos();
-renderPlayers();
+renderPlayers(); renderMapPreview(); renderServerIp(); renderNow(); renderMe();
 document.getElementById('logo-small').src = document.getElementById('logo-big').src;
 (function () {
   const btn = document.getElementById('to-top');
-  const onScroll = () => btn.classList.toggle('show', window.scrollY > 800);
-  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
-  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  if (btn) {
+    const onScroll = () => btn.classList.toggle('show', window.scrollY > 800);
+    window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
   if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.04, rootMargin: '0px 0px -6% 0px' });
   // nur Bereiche unterhalb des sichtbaren Teils blenden sanft ein; alles andere bleibt sofort da
@@ -2963,6 +3271,5 @@ loadCloudData().then(pollCloud);
 document.getElementById('logo-tool').src = document.getElementById('logo-big').src;
 route();
 </script>
-<button id="to-top" type="button" aria-label="Nach oben"><i class="fa-solid fa-arrow-up"></i></button>
 </body>
 </html>
